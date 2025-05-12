@@ -119,9 +119,6 @@ public class Alu extends JFrame {
             new OperationItem("SUBTRACT", "SUBTRACT"),
             new OperationItem("MULTIPLY", "MULTIPLY"),
             new OperationItem("DIVIDE", "DIVIDE"),
-            new OperationItem("MODULO", "MODULO"),
-            new OperationItem("LEFT SHIFT", "LEFT"),
-            new OperationItem("RIGHT SHIFT", "RIGHT"),
             new OperationItem("AND", "AND"),
             new OperationItem("OR", "OR"),
             new OperationItem("NOT", "NOT")
@@ -594,11 +591,8 @@ public class Alu extends JFrame {
         binaryOperations.put("SUBTRACT", aluLogic::subtract);
         binaryOperations.put("MULTIPLY", aluLogic::multiply);
         binaryOperations.put("DIVIDE", aluLogic::divide);
-        binaryOperations.put("MODULO", aluLogic::modulo);
         binaryOperations.put("AND", aluLogic::and);
         binaryOperations.put("OR", aluLogic::or);
-        binaryOperations.put("LEFT", aluLogic::leftShift);
-        binaryOperations.put("RIGHT", aluLogic::rightShift);
 
         unaryOperations = new HashMap<>();
         unaryOperations.put("NOT", aluLogic::not);
