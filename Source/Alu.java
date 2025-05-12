@@ -129,17 +129,30 @@ public class Alu extends JFrame {
     }
 
     private void styleComboBox(JComboBox<?> combo) {
-        combo.setOpaque(false);
+        combo.setOpaque(true);
         combo.setBackground(Ui.FIELD_BACKGROUND_DARK);
         combo.setForeground(Ui.TEXT_LIGHT);
         combo.setFont(Ui.SEGOE_UI_PLAIN_14);
+        combo.setPreferredSize(new Dimension(0, 44));
 
         Border roundedPart = new Ui.RoundedBorder(Ui.TEXT_FIELD_BORDER_RADIUS, Ui.SUBTLE_BORDER_COLOR, Ui.DARK_THEME_FOCUS_BORDER_COLOR);
-        Border paddingPart = BorderFactory.createEmptyBorder(Ui.COMBO_BOX_RENDERER_PADDING_VERTICAL - 2, 5, Ui.COMBO_BOX_RENDERER_PADDING_VERTICAL - 2, 0);
-        combo.setBorder(BorderFactory.createCompoundBorder(roundedPart, paddingPart));
+        combo.setBorder(roundedPart);
 
         if (!(combo.getRenderer() instanceof Ui.ModernComboBoxRenderer)) {
-            combo.setRenderer(new Ui.ModernComboBoxRenderer());
+            combo.setRenderer(new Ui.ModernComboBoxRenderer() {
+                @Override
+                public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                    JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                    label.setBackground(Ui.FIELD_BACKGROUND_DARK);
+                    label.setForeground(isSelected ? Color.WHITE : Ui.TEXT_LIGHT);
+                    label.setFont(Ui.SEGOE_UI_PLAIN_14);
+                    label.setBorder(BorderFactory.createEmptyBorder(Ui.COMBO_BOX_RENDERER_PADDING_VERTICAL, Ui.COMBO_BOX_RENDERER_PADDING_HORIZONTAL, Ui.COMBO_BOX_RENDERER_PADDING_VERTICAL, Ui.COMBO_BOX_RENDERER_PADDING_HORIZONTAL));
+                    if (isSelected) {
+                        label.setBackground(Ui.APP_THEME_COLOR.darker());
+                    }
+                    return label;
+                }
+            });
         }
 
         for (Component child : combo.getComponents()) {
@@ -148,7 +161,8 @@ public class Alu extends JFrame {
                 arrowButton.setOpaque(false);
                 arrowButton.setContentAreaFilled(false);
                 arrowButton.setBorderPainted(false);
-                arrowButton.setBackground(Ui.FIELD_BACKGROUND_DARK); 
+                arrowButton.setBackground(Ui.FIELD_BACKGROUND_DARK);
+                arrowButton.setPreferredSize(new Dimension(44, 44));
                 break;
             }
         }
