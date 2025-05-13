@@ -367,6 +367,11 @@ public class Alu extends JFrame {
         Border historyPanelOuterBorder = BorderFactory.createEmptyBorder();
         historyPanel.setBorder(BorderFactory.createCompoundBorder(historyPanelOuterBorder, BorderFactory.createEmptyBorder(18, 32, 18, 32)));
 
+        int historyPanelHeight = 140; 
+        historyPanel.setPreferredSize(new Dimension(0, historyPanelHeight));
+        historyPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, historyPanelHeight));
+        historyPanel.setMinimumSize(new Dimension(0, historyPanelHeight));
+
         JLabel historyTitleLabel = new JLabel("Calculation History");
         historyTitleLabel.setFont(Ui.SEGOE_UI_BOLD_14.deriveFont(Font.PLAIN, 16f));
         historyTitleLabel.setForeground(Ui.LABEL_TEXT_LIGHT);
