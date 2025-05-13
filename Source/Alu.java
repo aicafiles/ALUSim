@@ -243,10 +243,10 @@ public class Alu extends JFrame {
         binaryInput2TextField.setHorizontalAlignment(JTextField.LEFT);
         binaryInput2TextField.setToolTipText("Secondary representation of Input B");        
         binaryResultTextField = createStyledTextField(false);
-        binaryResultTextField.setFont(BINARY_TEXT_FIELD_FONT);
+        binaryResultTextField.setFont(Ui.SEGOE_UI_PLAIN_14);
         binaryResultTextField.setHorizontalAlignment(JTextField.LEFT);
         binaryResultTextField.setToolTipText("Binary representation of the result");
-        binaryResultTextField.setBackground(new Color(245, 248, 255));
+        binaryResultTextField.setBackground(Ui.FIELD_BACKGROUND_DARK);
 
         baseSelector = new JComboBox<>(new String[]{"DECIMAL", "BINARY"});
         styleComboBox(baseSelector);
@@ -407,6 +407,35 @@ public class Alu extends JFrame {
         groupButtonPanel.setPreferredSize(new Dimension(groupButtonWidth, buttonHeight));
         groupButtonPanel.setMinimumSize(new Dimension(groupButtonWidth, buttonHeight));
         groupButtonPanel.setMaximumSize(new Dimension(groupButtonWidth, buttonHeight));
+
+        Font resultFont = Ui.SEGOE_UI_PLAIN_14;
+        resultField.setFont(resultFont);
+        binaryResultTextField.setFont(resultFont);
+
+        Border resultBorder = BorderFactory.createCompoundBorder(
+            new Ui.RoundedBorder(Ui.TEXT_FIELD_BORDER_RADIUS, Ui.SUBTLE_BORDER_COLOR, Ui.DARK_THEME_FOCUS_BORDER_COLOR),
+            BorderFactory.createEmptyBorder(Ui.TEXT_FIELD_VERTICAL_PADDING, Ui.TEXT_FIELD_HORIZONTAL_PADDING, Ui.TEXT_FIELD_VERTICAL_PADDING, Ui.TEXT_FIELD_HORIZONTAL_PADDING)
+        );
+        resultField.setBorder(resultBorder);
+        binaryResultTextField.setBorder(resultBorder);
+        resultField.setBackground(Ui.FIELD_BACKGROUND_DARK);
+        binaryResultTextField.setBackground(Ui.FIELD_BACKGROUND_DARK); 
+        Dimension resultSize = resultField.getPreferredSize();
+        binaryResultTextField.setPreferredSize(resultSize);
+        binaryResultTextField.setMinimumSize(resultSize);
+        binaryResultTextField.setMaximumSize(resultSize);
+        resultField.setPreferredSize(resultSize);
+        resultField.setMinimumSize(resultSize);
+        resultField.setMaximumSize(resultSize);
+        groupButtonPanel.setPreferredSize(new Dimension(groupButtonWidth, resultSize.height));
+        groupButtonPanel.setMinimumSize(new Dimension(groupButtonWidth, resultSize.height));
+        groupButtonPanel.setMaximumSize(new Dimension(groupButtonWidth, resultSize.height));
+        calculateButton.setPreferredSize(new Dimension(buttonWidth, resultSize.height));
+        calculateButton.setMinimumSize(new Dimension(buttonWidth, resultSize.height));
+        calculateButton.setMaximumSize(new Dimension(buttonWidth, resultSize.height));
+        clearButton.setPreferredSize(new Dimension(buttonWidth, resultSize.height));
+        clearButton.setMinimumSize(new Dimension(buttonWidth, resultSize.height));
+        clearButton.setMaximumSize(new Dimension(buttonWidth, resultSize.height));
 
         int resultRowY = currentY;
         gbc.gridx = 0;
