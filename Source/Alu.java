@@ -173,7 +173,7 @@ public class Alu extends JFrame {
         gbc.gridy = startY;
         gbc.anchor = GridBagConstraints.SOUTHWEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(16, 14, 5, 14); 
+        gbc.insets = new Insets(6, 14, 2, 14); 
         JLabel label = new JLabel(labelText);
         label.setFont(Ui.COMPONENT_LABEL_FONT);
         label.setForeground(Ui.LABEL_TEXT_LIGHT);
@@ -182,7 +182,7 @@ public class Alu extends JFrame {
         gbc.gridy = startY + 1;
         gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(0, 14, 16, 14);
+        gbc.insets = new Insets(0, 14, 8, 14);
         panel.add(component, gbc);
         return startY + 2;
     }
@@ -191,13 +191,13 @@ public class Alu extends JFrame {
         setTitle("ALUSim");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         getContentPane().setBackground(Ui.FRAME_BACKGROUND);        
-        setLayout(new BorderLayout(15, 15));
-        getRootPane().setBorder(BorderFactory.createEmptyBorder(24, 40, 32, 40)); 
+        setLayout(new BorderLayout(15, 0));
+        getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 40, 8, 40)); 
 
         JPanel headerPanel = new JPanel();
         headerPanel.setBackground(Ui.FRAME_BACKGROUND);
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
-        headerPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 24, 0)); 
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(110, 0, 0, 0)); 
 
         JLabel titleLabel = new JLabel("ALU Calculator");
         titleLabel.setFont(Ui.TITLE_FONT);
@@ -210,18 +210,18 @@ public class Alu extends JFrame {
         subtitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         headerPanel.add(titleLabel);
-        headerPanel.add(Box.createRigidArea(new Dimension(0, 8))); 
+        headerPanel.add(Box.createRigidArea(new Dimension(0, 2))); 
         headerPanel.add(subtitleLabel);
         add(headerPanel, BorderLayout.NORTH);   
         JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.setOpaque(true);
         centerPanel.setBackground(Ui.FRAME_BACKGROUND);
-        centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(-60, 0, 0, 0)); 
 
         JPanel mainContentPanel = new JPanel(new GridBagLayout());
         mainContentPanel.setOpaque(true);
         mainContentPanel.setBackground(Ui.FRAME_BACKGROUND);
-        mainContentPanel.setBorder(BorderFactory.createEmptyBorder(24, 30, 24, 30));
+        mainContentPanel.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
         GridBagConstraints gbc = new GridBagConstraints();
 
         input1Field = createStyledTextField(true);
@@ -473,10 +473,7 @@ public class Alu extends JFrame {
         JPanel calculationsPanel = new JPanel(new BorderLayout());
         calculationsPanel.setOpaque(true);
         calculationsPanel.setBackground(Ui.FRAME_BACKGROUND);
-        calculationsPanel.setBorder(BorderFactory.createCompoundBorder(
-            new Ui.RoundedBorder(Ui.GENERAL_BORDER_RADIUS, Ui.SUBTLE_BORDER_COLOR, Ui.FOCUS_HIGHLIGHT_COLOR),
-            BorderFactory.createEmptyBorder(8, 12, 12, 12)
-        ));
+        calculationsPanel.setBorder(null);
         calculationsPanel.add(mainContentPanel, BorderLayout.CENTER);
         
         setupNewHistoryPanel();
@@ -491,13 +488,23 @@ public class Alu extends JFrame {
         centerGbc.insets = new Insets(0, 0, 0, 10); 
         centerPanel.add(calculationsPanel, centerGbc);
         
+        JPanel historyContainer = new JPanel();
+        historyContainer.setLayout(new BoxLayout(historyContainer, BoxLayout.Y_AXIS));
+        historyContainer.setOpaque(false);
+        historyContainer.add(Box.createVerticalGlue());
+        historyPanel.setMaximumSize(new Dimension(350, 380));
+        historyPanel.setPreferredSize(new Dimension(300, 380));
+        historyPanel.setMinimumSize(new Dimension(250, 200));
+        historyContainer.add(historyPanel);
+        historyContainer.add(Box.createVerticalGlue());
+
         centerGbc.gridx = 1;
         centerGbc.gridy = 0;
         centerGbc.weightx = 0.35;
         centerGbc.weighty = 1.0;
         centerGbc.fill = GridBagConstraints.BOTH;
         centerGbc.insets = new Insets(0, 10, 0, 0); 
-        centerPanel.add(historyPanel, centerGbc);
+        centerPanel.add(historyContainer, centerGbc);
         
         add(centerPanel, BorderLayout.CENTER);
         setupAccessibility();
@@ -533,13 +540,13 @@ public class Alu extends JFrame {
         historyPanel.setBackground(Ui.FRAME_BACKGROUND);
         historyPanel.setBorder(BorderFactory.createCompoundBorder(
             new Ui.RoundedBorder(Ui.GENERAL_BORDER_RADIUS, Ui.SUBTLE_BORDER_COLOR, Ui.FOCUS_HIGHLIGHT_COLOR), 
-            BorderFactory.createEmptyBorder(20, 24, 20, 24)));
+            BorderFactory.createEmptyBorder(8, 12, 8, 12)));
             
         historyPanel.setPreferredSize(new Dimension(300, 0));
         historyPanel.setMinimumSize(new Dimension(250, 0));        
         JPanel historyTitlePanel = new JPanel(new BorderLayout());
         historyTitlePanel.setBackground(Ui.FRAME_BACKGROUND);
-        historyTitlePanel.setBorder(BorderFactory.createEmptyBorder(10, 8, 10, 8));
+        historyTitlePanel.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
         
         JLabel historyTitleLabel = new JLabel("Calculation History");
         historyTitleLabel.setFont(Ui.SEGOE_UI_BOLD_14.deriveFont(Font.BOLD, 19f));
@@ -548,15 +555,16 @@ public class Alu extends JFrame {
         historyTitlePanel.add(historyTitleLabel, BorderLayout.CENTER);
         
         historyPanel.add(historyTitlePanel, BorderLayout.NORTH);        
+        historyPanel.add(historyTitlePanel, BorderLayout.NORTH);        
         historyModel = new DefaultListModel<>();
         historyList = new JList<>(historyModel);
         historyList.setFont(new Font("Inter", Font.PLAIN, 16));
         historyList.setBackground(Ui.FRAME_BACKGROUND);
         historyList.setForeground(Ui.TEXT_LIGHT);
         historyList.setSelectionBackground(new Color(233, 233, 249)); 
-        historyList.setFixedCellHeight(32); 
+        historyList.setFixedCellHeight(28); 
         historyList.setSelectionForeground(Ui.APP_THEME_COLOR);
-        historyList.setBorder(BorderFactory.createEmptyBorder(12, 8, 12, 8)); 
+        historyList.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8)); 
         historyList.setCellRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -564,7 +572,7 @@ public class Alu extends JFrame {
                 c.setFont(new Font("Inter", Font.PLAIN, 14));
                 c.setForeground(isSelected ? Ui.APP_THEME_COLOR : Ui.TEXT_LIGHT);
                 c.setBackground(isSelected ? new Color(220,220,240) : Ui.FRAME_BACKGROUND);
-                c.setBorder(BorderFactory.createEmptyBorder(4, 12, 4, 12));
+                c.setBorder(BorderFactory.createEmptyBorder(2, 12, 2, 12));
                 return c;
             }
         });
