@@ -304,17 +304,12 @@ public class Alu extends JFrame {
         addLabeledComponentToPanel(mainContentPanel, gbc, "Select Operation", operationCombo, 2, 2);        
 
         int fieldHeight = input1Field.getPreferredSize().height;
-        Dimension fieldDim = new Dimension(0, fieldHeight + 6);
-        resultField.setPreferredSize(fieldDim);
-        resultField.setMinimumSize(fieldDim);
-        resultField.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldHeight + 6));
-        resultField.setBackground(new Color(240, 242, 255));
-        resultField.setFont(Ui.SEGOE_UI_BOLD_14);
-        binaryResultTextField.setPreferredSize(fieldDim);
-        binaryResultTextField.setMinimumSize(fieldDim);
-        binaryResultTextField.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldHeight + 6));
-        binaryResultTextField.setBackground(new Color(240, 242, 255));
-        binaryResultTextField.setFont(BINARY_TEXT_FIELD_FONT.deriveFont(Font.BOLD));
+
+        int buttonHeight = fieldHeight; 
+        int dropdownWidth = baseSelector.getPreferredSize().width; 
+        int groupButtonWidth = dropdownWidth;
+        int buttonGap = 8;
+        int buttonWidth = (groupButtonWidth - buttonGap) / 2;
         calculateButton = new JButton("Calculate") {
             @Override
             protected void paintComponent(Graphics g) {
@@ -338,7 +333,7 @@ public class Alu extends JFrame {
         calculateButton.setContentAreaFilled(false);
         calculateButton.setBorderPainted(false);
         calculateButton.setForeground(Color.WHITE);
-        calculateButton.setFont(Ui.SEGOE_UI_BOLD_14.deriveFont(Font.BOLD, 18f));
+        calculateButton.setFont(Ui.SEGOE_UI_BOLD_14.deriveFont(Font.BOLD, 17f)); 
         calculateButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         calculateButton.addActionListener(e -> performOperation());
         calculateButton.setToolTipText("Perform calculation (Alt+Enter or specific operation shortcut)");
@@ -352,15 +347,72 @@ public class Alu extends JFrame {
                 calculateButton.setForeground(Color.WHITE);
             }
         });
-        Dimension buttonDim = new Dimension(0, fieldHeight + 6); 
-        calculateButton.setPreferredSize(buttonDim);
-        calculateButton.setMinimumSize(buttonDim);
-        calculateButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldHeight + 6));
+        calculateButton.setPreferredSize(new Dimension(buttonWidth, buttonHeight));
+        calculateButton.setMinimumSize(new Dimension(buttonWidth, buttonHeight));
+        calculateButton.setMaximumSize(new Dimension(buttonWidth, buttonHeight));
+        calculateButton.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0)); 
+
+        JButton clearButton = new JButton("Clear") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int width = getWidth();
+                int height = getHeight();
+                GradientPaint gradient = new GradientPaint(
+                    0, 0, new Color(200, 0, 80),
+                    0, height, new Color(150, 0, 60)
+                );
+                g2.setPaint(gradient);
+                g2.fillRoundRect(0, 0, width, height, 20, 20);
+                g2.setColor(new Color(255, 255, 255, 40));
+                g2.fillRoundRect(0, 0, width, height/2, 20, 20);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        clearButton.setOpaque(false);
+        clearButton.setContentAreaFilled(false);
+        clearButton.setBorderPainted(false);
+        clearButton.setForeground(Color.WHITE);
+        clearButton.setFont(Ui.SEGOE_UI_BOLD_14.deriveFont(Font.BOLD, 17f)); 
+        clearButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        clearButton.setToolTipText("Clear all fields");
+        clearButton.setPreferredSize(new Dimension(buttonWidth, buttonHeight));
+        clearButton.setMinimumSize(new Dimension(buttonWidth, buttonHeight));
+        clearButton.setMaximumSize(new Dimension(buttonWidth, buttonHeight));
+        clearButton.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0)); 
+        clearButton.addActionListener(e -> {
+            input1Field.setText("");
+            input2Field.setText("");
+            resultField.setText("");
+            binaryInput1TextField.setText(DEFAULT_BINARY_STRING);
+            binaryInput2TextField.setText(DEFAULT_BINARY_STRING);
+            binaryResultTextField.setText("");
+            input1Field.requestFocus();
+        });
+
+        JPanel groupButtonPanel = new JPanel(new GridBagLayout());
+        groupButtonPanel.setOpaque(false);
+        GridBagConstraints gbcBtn = new GridBagConstraints();
+        gbcBtn.gridx = 0;
+        gbcBtn.gridy = 0;
+        gbcBtn.weightx = 0.5;
+        gbcBtn.fill = GridBagConstraints.BOTH;
+        gbcBtn.insets = new Insets(0, 0, 0, buttonGap/2);
+        groupButtonPanel.add(calculateButton, gbcBtn);
+        gbcBtn.gridx = 1;
+        gbcBtn.insets = new Insets(0, buttonGap/2, 0, 0);
+        groupButtonPanel.add(clearButton, gbcBtn);
+        groupButtonPanel.setPreferredSize(new Dimension(groupButtonWidth, buttonHeight));
+        groupButtonPanel.setMinimumSize(new Dimension(groupButtonWidth, buttonHeight));
+        groupButtonPanel.setMaximumSize(new Dimension(groupButtonWidth, buttonHeight));
+
         int resultRowY = currentY;
         gbc.gridx = 0;
         gbc.gridy = resultRowY;
         gbc.gridwidth = 1;
-        gbc.anchor = GridBagConstraints.SOUTHWEST;
+        gbc.anchor = GridBagConstraints.BASELINE;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(16, 14, 5, 14);
         JLabel decimalLabel = new JLabel("Decimal Result");
@@ -372,17 +424,21 @@ public class Alu extends JFrame {
         binaryLabel.setFont(Ui.COMPONENT_LABEL_FONT);
         binaryLabel.setForeground(Ui.LABEL_TEXT_LIGHT);
         mainContentPanel.add(binaryLabel, gbc);
+        gbc.gridx = 2;
+        JLabel emptyLabel = new JLabel("");
+        mainContentPanel.add(emptyLabel, gbc);
+
         gbc.gridy = resultRowY + 1;
         gbc.gridx = 0;
         gbc.insets = new Insets(0, 14, 16, 14);
-        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.anchor = GridBagConstraints.BASELINE; 
         mainContentPanel.add(resultField, gbc);
         gbc.gridx = 1;
         mainContentPanel.add(binaryResultTextField, gbc);
         gbc.gridx = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(0, 14, 16, 14);
-        mainContentPanel.add(calculateButton, gbc);
+        mainContentPanel.add(groupButtonPanel, gbc);
         currentY += 2;
 
         JPanel calculationsPanel = new JPanel(new BorderLayout());
