@@ -197,7 +197,7 @@ public class Alu extends JFrame {
         JPanel headerPanel = new JPanel();
         headerPanel.setBackground(Ui.FRAME_BACKGROUND);
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
-        headerPanel.setBorder(BorderFactory.createEmptyBorder(110, 0, 0, 0)); 
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
         JLabel titleLabel = new JLabel("ALU Calculator");
         titleLabel.setFont(Ui.TITLE_FONT);
@@ -212,11 +212,11 @@ public class Alu extends JFrame {
         headerPanel.add(titleLabel);
         headerPanel.add(Box.createRigidArea(new Dimension(0, 2))); 
         headerPanel.add(subtitleLabel);
-        add(headerPanel, BorderLayout.NORTH);   
+        
         JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.setOpaque(true);
         centerPanel.setBackground(Ui.FRAME_BACKGROUND);
-        centerPanel.setBorder(BorderFactory.createEmptyBorder(-60, 0, 0, 0)); 
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
         JPanel mainContentPanel = new JPanel(new GridBagLayout());
         mainContentPanel.setOpaque(true);
@@ -506,7 +506,26 @@ public class Alu extends JFrame {
         centerGbc.insets = new Insets(0, 10, 0, 0); 
         centerPanel.add(historyContainer, centerGbc);
         
-        add(centerPanel, BorderLayout.CENTER);
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setOpaque(false);
+        contentPanel.setBackground(Ui.FRAME_BACKGROUND);
+        contentPanel.add(headerPanel);
+        contentPanel.add(Box.createRigidArea(new Dimension(0, 16))); 
+        contentPanel.add(centerPanel);
+
+        JPanel outerPanel = new JPanel(new GridBagLayout());
+        outerPanel.setOpaque(true);
+        outerPanel.setBackground(Ui.FRAME_BACKGROUND);
+        GridBagConstraints gbcOuter = new GridBagConstraints();
+        gbcOuter.gridx = 0;
+        gbcOuter.gridy = 0;
+        gbcOuter.weightx = 1.0;
+        gbcOuter.weighty = 1.0;
+        gbcOuter.anchor = GridBagConstraints.CENTER;
+        outerPanel.add(contentPanel, gbcOuter);
+        setContentPane(outerPanel);
+
         setupAccessibility();
         pack();
         setExtendedState(JFrame.MAXIMIZED_BOTH);
