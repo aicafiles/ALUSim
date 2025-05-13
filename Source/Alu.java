@@ -23,7 +23,6 @@ public class Alu extends JFrame {
     private Map<String, Function<Integer, Integer>> unaryOperations;
     private Timer animationTimer;
     private JLabel secondaryLabelA, secondaryLabelB;
-    private static final Font HISTORY_FONT = new Font("Monospace", Font.PLAIN, 12);
     private static final Font BINARY_TEXT_FIELD_FONT = new Font("Consolas", Font.PLAIN, 14);
     private static final String DEFAULT_BINARY_STRING = "00000000";
     private static final int RESULT_ANIMATION_DURATION = 400;
@@ -214,19 +213,10 @@ public class Alu extends JFrame {
         headerPanel.add(subtitleLabel);
         add(headerPanel, BorderLayout.NORTH);
 
-        JPanel mainContentPanel = new JPanel(new GridBagLayout()) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(60, 65, 60)); 
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20); 
-                g2.dispose();
-            }
-        };
-        mainContentPanel.setOpaque(false);
-        mainContentPanel.setBorder(BorderFactory.createEmptyBorder(32, 32, 32, 32)); 
+        JPanel mainContentPanel = new JPanel(new GridBagLayout());
+        mainContentPanel.setOpaque(true);
+        mainContentPanel.setBackground(Ui.FRAME_BACKGROUND);
+        mainContentPanel.setBorder(BorderFactory.createEmptyBorder(32, 32, 32, 32));
         GridBagConstraints gbc = new GridBagConstraints();
 
         input1Field = createStyledTextField(true);
@@ -262,6 +252,14 @@ public class Alu extends JFrame {
             addInputValidationFeedback(input2Field);
             updateSecondaryRepresentation(input1Field.getText(), binaryInput1TextField);
             updateSecondaryRepresentation(input2Field.getText(), binaryInput2TextField);
+            String base = (String) baseSelector.getSelectedItem();
+            if ("BINARY".equalsIgnoreCase(base)) {
+                binaryInput1TextField.setText("0");
+                binaryInput2TextField.setText("0");
+            } else {
+                binaryInput1TextField.setText(DEFAULT_BINARY_STRING);
+                binaryInput2TextField.setText(DEFAULT_BINARY_STRING);
+            }
         });
 
         operationCombo = new JComboBox<>(getStyledOperationItems());
@@ -303,28 +301,34 @@ public class Alu extends JFrame {
         addLabeledComponentToPanel(mainContentPanel, gbc, "Select Operation", operationCombo, 2, 2);
 
         currentY = addLabeledComponentToPanel(mainContentPanel, gbc, "Decimal Result", resultField, 0, currentY);
-        addLabeledComponentToPanel(mainContentPanel, gbc, "Binary Result", binaryResultTextField, 1, 4);
+        int fieldHeight = input1Field.getPreferredSize().height;
+        Dimension fieldDim = new Dimension(0, fieldHeight);
+        resultField.setPreferredSize(fieldDim);
+        resultField.setMinimumSize(fieldDim);
+        resultField.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldHeight));
+        binaryResultTextField.setPreferredSize(fieldDim);
+        binaryResultTextField.setMinimumSize(fieldDim);
+        binaryResultTextField.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldHeight));
 
-        calculateButton = new JButton("Calculate");
-        calculateButton.setOpaque(true);
-        calculateButton.setBackground(Ui.CALCULATE_BUTTON_BG_LIGHT);
-        calculateButton.setForeground(Ui.CALCULATE_BUTTON_FG_DARK);
-        calculateButton.setFont(Ui.SEGOE_UI_BOLD_14);
-        calculateButton.setFocusPainted(false);
-        Border calcButtonRoundedPart = new Ui.RoundedBorder(Ui.GENERAL_BORDER_RADIUS, Ui.CALCULATE_BUTTON_BG_LIGHT.darker(), Ui.CALCULATE_BUTTON_BG_LIGHT.darker().darker());
-        Border calcButtonPaddingPart = BorderFactory.createEmptyBorder(18, 48, 18, 48);
-        calculateButton.setBorder(BorderFactory.createCompoundBorder(calcButtonRoundedPart, calcButtonPaddingPart));
+        calculateButton = Ui.createModernButton("Calculate");
         calculateButton.addActionListener(e -> performOperation());
         calculateButton.setToolTipText("Perform calculation (Alt+Enter or specific operation shortcut)");
         calculateButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
+        Dimension buttonDim = new Dimension(0, fieldHeight);
+        calculateButton.setPreferredSize(buttonDim);
+        calculateButton.setMinimumSize(buttonDim);
+        calculateButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldHeight));
         gbc.gridx = 2;
-        gbc.gridy = 4;
-        gbc.gridheight = 2;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(10, 5, 10, 5);
+        gbc.gridy = 5;
+        gbc.gridheight = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL; 
+        gbc.weightx = 1.0; 
+        gbc.weighty = 0;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.insets = new Insets(0, 5, 0, 5); 
         mainContentPanel.add(calculateButton, gbc);
+
+        addLabeledComponentToPanel(mainContentPanel, gbc, "Binary Result", binaryResultTextField, 1, 4);
 
         add(mainContentPanel, BorderLayout.CENTER);
         setupNewHistoryPanel();
@@ -332,7 +336,7 @@ public class Alu extends JFrame {
         setupAccessibility();
         pack();
         setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setMinimumSize(new Dimension(800, 700));
+        setMinimumSize(new Dimension(900, 700));
         setLocationRelativeTo(null);
     }
 
@@ -359,45 +363,39 @@ public class Alu extends JFrame {
     private void setupNewHistoryPanel() {
         historyPanel = new JPanel(new BorderLayout(5,5));
         historyPanel.setOpaque(true);
-        historyPanel.setBackground(Ui.HISTORY_PANEL_BG_GREEN);
-        Border historyPanelOuterBorder = new Ui.RoundedBorder(Ui.GENERAL_BORDER_RADIUS, Ui.HISTORY_PANEL_BG_GREEN.darker(), Ui.HISTORY_PANEL_BG_GREEN.darker());
+        historyPanel.setBackground(Ui.FRAME_BACKGROUND);
+        Border historyPanelOuterBorder = BorderFactory.createEmptyBorder();
         historyPanel.setBorder(BorderFactory.createCompoundBorder(historyPanelOuterBorder, BorderFactory.createEmptyBorder(18, 32, 18, 32)));
-        historyPanel.setPreferredSize(new Dimension(0, 180)); 
 
         JLabel historyTitleLabel = new JLabel("Calculation History");
-        historyTitleLabel.setFont(Ui.SEGOE_UI_BOLD_14);
-        historyTitleLabel.setForeground(Ui.HISTORY_TEXT_DARK);
+        historyTitleLabel.setFont(Ui.SEGOE_UI_BOLD_14.deriveFont(Font.PLAIN, 16f));
+        historyTitleLabel.setForeground(Ui.LABEL_TEXT_LIGHT);
         historyTitleLabel.setBorder(BorderFactory.createEmptyBorder(0,0,8,0));
         historyPanel.add(historyTitleLabel, BorderLayout.NORTH);
 
         historyModel = new DefaultListModel<>();
         historyList = new JList<>(historyModel);
-        historyList.setFont(HISTORY_FONT);
-        historyList.setBackground(Ui.HISTORY_PANEL_BG_GREEN);
-        historyList.setForeground(Ui.HISTORY_TEXT_DARK);
-        historyList.setSelectionBackground(Ui.HISTORY_PANEL_BG_GREEN.darker().darker());
-        historyList.setSelectionForeground(Color.WHITE);
+        historyList.setFont(new Font("Inter", Font.PLAIN, 14));
+        historyList.setBackground(Ui.FRAME_BACKGROUND);
+        historyList.setForeground(Ui.TEXT_LIGHT);
+        historyList.setSelectionBackground(new Color(220,220,240));
+        historyList.setSelectionForeground(Ui.APP_THEME_COLOR);
+        historyList.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
         historyList.setCellRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                c.setForeground(Color.DARK_GRAY); 
-                if (isSelected) {
-                    c.setBackground(new Color(34, 139, 34).darker().darker()); 
-                    c.setForeground(Color.WHITE);
-                } else {
-                    c.setBackground(new Color(240, 240, 240)); 
-                }
+                JLabel c = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                c.setFont(new Font("Inter", Font.PLAIN, 14));
+                c.setForeground(isSelected ? Ui.APP_THEME_COLOR : Ui.TEXT_LIGHT);
+                c.setBackground(isSelected ? new Color(220,220,240) : Ui.FRAME_BACKGROUND);
+                c.setBorder(BorderFactory.createEmptyBorder(4, 12, 4, 12));
                 return c;
             }
         });
-
-
-        JScrollPane historyScroll = new JScrollPane(historyList);
-        historyScroll.getViewport().setBackground(Ui.HISTORY_PANEL_BG_GREEN);
-        historyScroll.setBorder(BorderFactory.createLineBorder(Ui.HISTORY_PANEL_BG_GREEN.darker()));
-
-        historyPanel.add(historyScroll, BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(historyList);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.setBackground(Ui.FRAME_BACKGROUND);
+        historyPanel.add(scrollPane, BorderLayout.CENTER);
     }
 
     private void setupAccessibility() {

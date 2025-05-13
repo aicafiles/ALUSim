@@ -5,6 +5,7 @@ public class Main {
         javax.swing.SwingUtilities.invokeLater(() -> {
             Alu aluInterface = new Alu();
             aluInterface.setVisible(true);
+            aluInterface.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
         });
     }
 }
