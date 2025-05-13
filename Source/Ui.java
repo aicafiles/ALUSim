@@ -26,26 +26,22 @@ public class Ui {
     public static final Color HISTORY_PANEL_BG_GREEN = FRAME_BACKGROUND;
     public static final Color HISTORY_TEXT_DARK = TEXT_LIGHT;
     public static final Color DARK_THEME_FOCUS_BORDER_COLOR = new Color(3, 218, 198); 
-    public static final Color SUBTLE_BORDER_COLOR = new Color(224, 224, 224); 
-
-    public static final Font TITLE_FONT = new Font("Inter", Font.BOLD, 36); 
-    public static final Font SUBTITLE_FONT = new Font("Inter", Font.PLAIN, 20); 
-    public static final Font COMPONENT_LABEL_FONT = new Font("Inter", Font.BOLD, 16); 
+    public static final Color SUBTLE_BORDER_COLOR = new Color(224, 224, 224);     public static final Font TITLE_FONT = new Font("Inter", Font.BOLD, 40); 
+    public static final Font SUBTITLE_FONT = new Font("Inter", Font.PLAIN, 22); 
+    public static final Font COMPONENT_LABEL_FONT = new Font("Inter", Font.BOLD, 18); 
 
     public static final int GENERAL_BORDER_RADIUS = 24;
     public static final int TEXT_FIELD_BORDER_RADIUS = 14;
 
-    public static final Font SEGOE_UI_PLAIN_14 = new Font("Inter", Font.PLAIN, 15);
-    public static final Font SEGOE_UI_BOLD_14 = new Font("Inter", Font.BOLD, 15);
+    public static final Font SEGOE_UI_PLAIN_14 = new Font("Inter", Font.PLAIN, 17);
+    public static final Font SEGOE_UI_BOLD_14 = new Font("Inter", Font.BOLD, 17);    public static final int TEXT_FIELD_HORIZONTAL_PADDING = 16; 
+    public static final int TEXT_FIELD_VERTICAL_PADDING = 10;
 
-    public static final int TEXT_FIELD_HORIZONTAL_PADDING = 18; 
-    public static final int TEXT_FIELD_VERTICAL_PADDING = 12;
+    public static final int COMBO_BOX_RENDERER_PADDING_VERTICAL = 10;
+    public static final int COMBO_BOX_RENDERER_PADDING_HORIZONTAL = 14;
 
-    public static final int COMBO_BOX_RENDERER_PADDING_VERTICAL = 8;
-    public static final int COMBO_BOX_RENDERER_PADDING_HORIZONTAL = 16;
-
-    public static final int CALCULATE_BUTTON_HORIZONTAL_PADDING = 24;
-    public static final int CALCULATE_BUTTON_VERTICAL_PADDING = 12;
+    public static final int CALCULATE_BUTTON_HORIZONTAL_PADDING = 28;
+    public static final int CALCULATE_BUTTON_VERTICAL_PADDING = 14;
 
     public static JPanel createRoundedPanel() {
         JPanel panel = new JPanel() {

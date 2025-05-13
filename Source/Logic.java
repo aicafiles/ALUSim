@@ -19,10 +19,11 @@ public class Logic {
     private void updateResult(int newResult) {
         int oldResult = this.result;
         this.result = newResult;
-        this.binaryResult = String.format("%32s", Integer.toBinaryString(newResult))
-                               .replace(' ', '0')
-                               .replaceAll("(.{8})", "$1 ")
-                               .trim();
+        String rawBinary = Integer.toBinaryString(newResult);
+        if (rawBinary.length() < 8) {
+            rawBinary = String.format("%8s", rawBinary).replace(' ', '0');
+        }
+        this.binaryResult = rawBinary;
         changes.firePropertyChange("result", oldResult, newResult);
         changes.firePropertyChange("binaryResult", null, binaryResult);
     }

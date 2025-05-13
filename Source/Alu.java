@@ -23,9 +23,9 @@ public class Alu extends JFrame {
     private Map<String, Function<Integer, Integer>> unaryOperations;
     private Timer animationTimer;
     private JLabel secondaryLabelA, secondaryLabelB;
-    private static final Font BINARY_TEXT_FIELD_FONT = new Font("Consolas", Font.PLAIN, 14);
+    private static final Font BINARY_TEXT_FIELD_FONT = new Font("Consolas", Font.PLAIN, 16);
     private static final String DEFAULT_BINARY_STRING = "00000000";
-    private static final int RESULT_ANIMATION_DURATION = 400;
+    private static final int RESULT_ANIMATION_DURATION = 600; 
 
     private static class OperationItem {
         private final String displayString;
@@ -168,11 +168,12 @@ public class Alu extends JFrame {
         gbc.gridx = gridx;
         gbc.gridwidth = 1;
         gbc.weightx = 1.0;
+        gbc.weighty = 0.0;
 
         gbc.gridy = startY;
         gbc.anchor = GridBagConstraints.SOUTHWEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(18, 12, 6, 12);
+        gbc.insets = new Insets(16, 14, 5, 14); 
         JLabel label = new JLabel(labelText);
         label.setFont(Ui.COMPONENT_LABEL_FONT);
         label.setForeground(Ui.LABEL_TEXT_LIGHT);
@@ -181,7 +182,7 @@ public class Alu extends JFrame {
         gbc.gridy = startY + 1;
         gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(0, 12, 18, 12); 
+        gbc.insets = new Insets(0, 14, 16, 14);
         panel.add(component, gbc);
         return startY + 2;
     }
@@ -189,14 +190,14 @@ public class Alu extends JFrame {
     private void setupGUI() {
         setTitle("ALUSim");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        getContentPane().setBackground(Ui.FRAME_BACKGROUND);
-        setLayout(new BorderLayout(10, 10));
-        getRootPane().setBorder(BorderFactory.createEmptyBorder(32, 32, 32, 32));
+        getContentPane().setBackground(Ui.FRAME_BACKGROUND);        
+        setLayout(new BorderLayout(15, 15));
+        getRootPane().setBorder(BorderFactory.createEmptyBorder(24, 40, 32, 40)); 
 
         JPanel headerPanel = new JPanel();
         headerPanel.setBackground(Ui.FRAME_BACKGROUND);
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
-        headerPanel.setBorder(BorderFactory.createEmptyBorder(40, 0, 32, 0)); 
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 24, 0)); 
 
         JLabel titleLabel = new JLabel("ALU Calculator");
         titleLabel.setFont(Ui.TITLE_FONT);
@@ -209,14 +210,18 @@ public class Alu extends JFrame {
         subtitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         headerPanel.add(titleLabel);
-        headerPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        headerPanel.add(Box.createRigidArea(new Dimension(0, 8))); 
         headerPanel.add(subtitleLabel);
-        add(headerPanel, BorderLayout.NORTH);
+        add(headerPanel, BorderLayout.NORTH);   
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        centerPanel.setOpaque(true);
+        centerPanel.setBackground(Ui.FRAME_BACKGROUND);
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
         JPanel mainContentPanel = new JPanel(new GridBagLayout());
         mainContentPanel.setOpaque(true);
         mainContentPanel.setBackground(Ui.FRAME_BACKGROUND);
-        mainContentPanel.setBorder(BorderFactory.createEmptyBorder(32, 32, 32, 32));
+        mainContentPanel.setBorder(BorderFactory.createEmptyBorder(24, 30, 24, 30));
         GridBagConstraints gbc = new GridBagConstraints();
 
         input1Field = createStyledTextField(true);
@@ -236,12 +241,12 @@ public class Alu extends JFrame {
         binaryInput2TextField.setFont(BINARY_TEXT_FIELD_FONT);
         binaryInput2TextField.setText(DEFAULT_BINARY_STRING);
         binaryInput2TextField.setHorizontalAlignment(JTextField.LEFT);
-        binaryInput2TextField.setToolTipText("Secondary representation of Input B");
-
+        binaryInput2TextField.setToolTipText("Secondary representation of Input B");        
         binaryResultTextField = createStyledTextField(false);
         binaryResultTextField.setFont(BINARY_TEXT_FIELD_FONT);
         binaryResultTextField.setHorizontalAlignment(JTextField.LEFT);
         binaryResultTextField.setToolTipText("Binary representation of the result");
+        binaryResultTextField.setBackground(new Color(245, 248, 255));
 
         baseSelector = new JComboBox<>(new String[]{"DECIMAL", "BINARY"});
         styleComboBox(baseSelector);
@@ -260,12 +265,11 @@ public class Alu extends JFrame {
                 binaryInput1TextField.setText(DEFAULT_BINARY_STRING);
                 binaryInput2TextField.setText(DEFAULT_BINARY_STRING);
             }
-        });
-
+        });        
         operationCombo = new JComboBox<>(getStyledOperationItems());
         styleComboBox(operationCombo);
         operationCombo.setToolTipText("Select operation to perform");
-
+        
         int currentY = 0;
         secondaryLabelA = new JLabel();
         secondaryLabelA.setFont(Ui.COMPONENT_LABEL_FONT);
@@ -274,17 +278,16 @@ public class Alu extends JFrame {
         secondaryLabelB.setFont(Ui.COMPONENT_LABEL_FONT);
         secondaryLabelB.setForeground(Ui.LABEL_TEXT_LIGHT);
         updateSecondaryLabels();
-
         currentY = addLabeledComponentToPanel(mainContentPanel, gbc, "Input A:", input1Field, 0, currentY);
         gbc.gridx = 1;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.SOUTHWEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(18, 12, 6, 12);
+        gbc.insets = new Insets(16, 14, 5, 14); 
         mainContentPanel.add(secondaryLabelA, gbc);
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.NORTHWEST;
-        gbc.insets = new Insets(0, 12, 18, 12);
+        gbc.insets = new Insets(0, 14, 16, 14); 
         mainContentPanel.add(binaryInput1TextField, gbc);
         addLabeledComponentToPanel(mainContentPanel, gbc, "Select Number System", baseSelector, 2, 0);
 
@@ -292,51 +295,130 @@ public class Alu extends JFrame {
         gbc.gridx = 1;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.SOUTHWEST;
-        gbc.insets = new Insets(18, 12, 6, 12);
+        gbc.insets = new Insets(16, 14, 5, 14); 
         mainContentPanel.add(secondaryLabelB, gbc);
         gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.NORTHWEST;
-        gbc.insets = new Insets(0, 12, 18, 12);
+        gbc.insets = new Insets(0, 14, 16, 14); 
         mainContentPanel.add(binaryInput2TextField, gbc);
-        addLabeledComponentToPanel(mainContentPanel, gbc, "Select Operation", operationCombo, 2, 2);
+        addLabeledComponentToPanel(mainContentPanel, gbc, "Select Operation", operationCombo, 2, 2);        
 
-        currentY = addLabeledComponentToPanel(mainContentPanel, gbc, "Decimal Result", resultField, 0, currentY);
         int fieldHeight = input1Field.getPreferredSize().height;
-        Dimension fieldDim = new Dimension(0, fieldHeight);
+        Dimension fieldDim = new Dimension(0, fieldHeight + 6);
         resultField.setPreferredSize(fieldDim);
         resultField.setMinimumSize(fieldDim);
-        resultField.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldHeight));
+        resultField.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldHeight + 6));
+        resultField.setBackground(new Color(240, 242, 255));
+        resultField.setFont(Ui.SEGOE_UI_BOLD_14);
         binaryResultTextField.setPreferredSize(fieldDim);
         binaryResultTextField.setMinimumSize(fieldDim);
-        binaryResultTextField.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldHeight));
-
-        calculateButton = Ui.createModernButton("Calculate");
+        binaryResultTextField.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldHeight + 6));
+        binaryResultTextField.setBackground(new Color(240, 242, 255));
+        binaryResultTextField.setFont(BINARY_TEXT_FIELD_FONT.deriveFont(Font.BOLD));
+        calculateButton = new JButton("Calculate") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int width = getWidth();
+                int height = getHeight();
+                GradientPaint gradient = new GradientPaint(
+                    0, 0, Ui.APP_THEME_COLOR,
+                    0, height, Ui.APP_THEME_COLOR.darker()
+                );
+                g2.setPaint(gradient);
+                g2.fillRoundRect(0, 0, width, height, 20, 20);
+                g2.setColor(new Color(255, 255, 255, 40));
+                g2.fillRoundRect(0, 0, width, height/2, 20, 20);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        calculateButton.setOpaque(false);
+        calculateButton.setContentAreaFilled(false);
+        calculateButton.setBorderPainted(false);
+        calculateButton.setForeground(Color.WHITE);
+        calculateButton.setFont(Ui.SEGOE_UI_BOLD_14.deriveFont(Font.BOLD, 18f));
+        calculateButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         calculateButton.addActionListener(e -> performOperation());
         calculateButton.setToolTipText("Perform calculation (Alt+Enter or specific operation shortcut)");
-        calculateButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        Dimension buttonDim = new Dimension(0, fieldHeight);
+        calculateButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                calculateButton.setForeground(new Color(255, 255, 255));
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                calculateButton.setForeground(Color.WHITE);
+            }
+        });
+        Dimension buttonDim = new Dimension(0, fieldHeight + 6); 
         calculateButton.setPreferredSize(buttonDim);
         calculateButton.setMinimumSize(buttonDim);
-        calculateButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldHeight));
-        gbc.gridx = 2;
-        gbc.gridy = 5;
-        gbc.gridheight = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL; 
-        gbc.weightx = 1.0; 
-        gbc.weighty = 0;
+        calculateButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, fieldHeight + 6));
+        int resultRowY = currentY;
+        gbc.gridx = 0;
+        gbc.gridy = resultRowY;
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.SOUTHWEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(16, 14, 5, 14);
+        JLabel decimalLabel = new JLabel("Decimal Result");
+        decimalLabel.setFont(Ui.COMPONENT_LABEL_FONT);
+        decimalLabel.setForeground(Ui.LABEL_TEXT_LIGHT);
+        mainContentPanel.add(decimalLabel, gbc);
+        gbc.gridx = 1;
+        JLabel binaryLabel = new JLabel("Binary Result");
+        binaryLabel.setFont(Ui.COMPONENT_LABEL_FONT);
+        binaryLabel.setForeground(Ui.LABEL_TEXT_LIGHT);
+        mainContentPanel.add(binaryLabel, gbc);
+        gbc.gridy = resultRowY + 1;
+        gbc.gridx = 0;
+        gbc.insets = new Insets(0, 14, 16, 14);
         gbc.anchor = GridBagConstraints.NORTHWEST;
-        gbc.insets = new Insets(0, 5, 0, 5); 
+        mainContentPanel.add(resultField, gbc);
+        gbc.gridx = 1;
+        mainContentPanel.add(binaryResultTextField, gbc);
+        gbc.gridx = 2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(0, 14, 16, 14);
         mainContentPanel.add(calculateButton, gbc);
+        currentY += 2;
 
-        addLabeledComponentToPanel(mainContentPanel, gbc, "Binary Result", binaryResultTextField, 1, 4);
-
-        add(mainContentPanel, BorderLayout.CENTER);
+        JPanel calculationsPanel = new JPanel(new BorderLayout());
+        calculationsPanel.setOpaque(true);
+        calculationsPanel.setBackground(Ui.FRAME_BACKGROUND);
+        calculationsPanel.setBorder(BorderFactory.createCompoundBorder(
+            new Ui.RoundedBorder(Ui.GENERAL_BORDER_RADIUS, Ui.SUBTLE_BORDER_COLOR, Ui.FOCUS_HIGHLIGHT_COLOR),
+            BorderFactory.createEmptyBorder(8, 12, 12, 12)
+        ));
+        calculationsPanel.add(mainContentPanel, BorderLayout.CENTER);
+        
         setupNewHistoryPanel();
-        add(historyPanel, BorderLayout.SOUTH);
+        
+        GridBagConstraints centerGbc = new GridBagConstraints();
+        
+        centerGbc.gridx = 0;
+        centerGbc.gridy = 0;
+        centerGbc.weightx = 0.65; 
+        centerGbc.weighty = 1.0;
+        centerGbc.fill = GridBagConstraints.BOTH;
+        centerGbc.insets = new Insets(0, 0, 0, 10); 
+        centerPanel.add(calculationsPanel, centerGbc);
+        
+        centerGbc.gridx = 1;
+        centerGbc.gridy = 0;
+        centerGbc.weightx = 0.35;
+        centerGbc.weighty = 1.0;
+        centerGbc.fill = GridBagConstraints.BOTH;
+        centerGbc.insets = new Insets(0, 10, 0, 0); 
+        centerPanel.add(historyPanel, centerGbc);
+        
+        add(centerPanel, BorderLayout.CENTER);
         setupAccessibility();
         pack();
         setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setMinimumSize(new Dimension(900, 700));
+        setMinimumSize(new Dimension(960, 720));
         setLocationRelativeTo(null);
     }
 
@@ -364,28 +446,32 @@ public class Alu extends JFrame {
         historyPanel = new JPanel(new BorderLayout(5,5));
         historyPanel.setOpaque(true);
         historyPanel.setBackground(Ui.FRAME_BACKGROUND);
-        Border historyPanelOuterBorder = BorderFactory.createEmptyBorder();
-        historyPanel.setBorder(BorderFactory.createCompoundBorder(historyPanelOuterBorder, BorderFactory.createEmptyBorder(18, 32, 18, 32)));
-
-        int historyPanelHeight = 140; 
-        historyPanel.setPreferredSize(new Dimension(0, historyPanelHeight));
-        historyPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, historyPanelHeight));
-        historyPanel.setMinimumSize(new Dimension(0, historyPanelHeight));
-
+        historyPanel.setBorder(BorderFactory.createCompoundBorder(
+            new Ui.RoundedBorder(Ui.GENERAL_BORDER_RADIUS, Ui.SUBTLE_BORDER_COLOR, Ui.FOCUS_HIGHLIGHT_COLOR), 
+            BorderFactory.createEmptyBorder(20, 24, 20, 24)));
+            
+        historyPanel.setPreferredSize(new Dimension(300, 0));
+        historyPanel.setMinimumSize(new Dimension(250, 0));        
+        JPanel historyTitlePanel = new JPanel(new BorderLayout());
+        historyTitlePanel.setBackground(Ui.FRAME_BACKGROUND);
+        historyTitlePanel.setBorder(BorderFactory.createEmptyBorder(10, 8, 10, 8));
+        
         JLabel historyTitleLabel = new JLabel("Calculation History");
-        historyTitleLabel.setFont(Ui.SEGOE_UI_BOLD_14.deriveFont(Font.PLAIN, 16f));
-        historyTitleLabel.setForeground(Ui.LABEL_TEXT_LIGHT);
-        historyTitleLabel.setBorder(BorderFactory.createEmptyBorder(0,0,8,0));
-        historyPanel.add(historyTitleLabel, BorderLayout.NORTH);
-
+        historyTitleLabel.setFont(Ui.SEGOE_UI_BOLD_14.deriveFont(Font.BOLD, 19f));
+        historyTitleLabel.setForeground(Ui.APP_THEME_COLOR);
+        historyTitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        historyTitlePanel.add(historyTitleLabel, BorderLayout.CENTER);
+        
+        historyPanel.add(historyTitlePanel, BorderLayout.NORTH);        
         historyModel = new DefaultListModel<>();
         historyList = new JList<>(historyModel);
-        historyList.setFont(new Font("Inter", Font.PLAIN, 14));
+        historyList.setFont(new Font("Inter", Font.PLAIN, 16));
         historyList.setBackground(Ui.FRAME_BACKGROUND);
         historyList.setForeground(Ui.TEXT_LIGHT);
-        historyList.setSelectionBackground(new Color(220,220,240));
+        historyList.setSelectionBackground(new Color(233, 233, 249)); 
+        historyList.setFixedCellHeight(32); 
         historyList.setSelectionForeground(Ui.APP_THEME_COLOR);
-        historyList.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
+        historyList.setBorder(BorderFactory.createEmptyBorder(12, 8, 12, 8)); 
         historyList.setCellRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -529,12 +615,10 @@ public class Alu extends JFrame {
                 Ui.TEXT_FIELD_VERTICAL_PADDING, Ui.TEXT_FIELD_HORIZONTAL_PADDING,
                 Ui.TEXT_FIELD_VERTICAL_PADDING, Ui.TEXT_FIELD_HORIZONTAL_PADDING);
         }
-
         String currentBase = baseSelector != null ? (String) baseSelector.getSelectedItem() : "DECIMAL";
         Border defaultBorder = new Ui.RoundedBorder(Ui.TEXT_FIELD_BORDER_RADIUS, Ui.SUBTLE_BORDER_COLOR, Ui.DARK_THEME_FOCUS_BORDER_COLOR);
         field.setBorder(BorderFactory.createCompoundBorder(defaultBorder, paddingPart));
         field.setToolTipText("Enter a number in " + currentBase + " base");
-        
         if (!initialSetup && !field.getText().isEmpty()) {
             JTextField targetTextField = null;
             if (field == input1Field) {
