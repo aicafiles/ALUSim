@@ -139,6 +139,42 @@ public class Ui {
         return combo;
     }
 
+    public static void showErrorDialog(Component parent, String message, String title) {
+        JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(parent), title, Dialog.ModalityType.APPLICATION_MODAL);
+        dialog.setUndecorated(true);
+        JPanel panel = createRoundedPanel();
+        panel.setBackground(FRAME_BACKGROUND);
+        panel.setLayout(new BorderLayout(0, 0));
+        panel.setBorder(BorderFactory.createCompoundBorder(
+            new RoundedBorder(GENERAL_BORDER_RADIUS, APP_THEME_COLOR, APP_THEME_COLOR),
+            BorderFactory.createEmptyBorder(24, 32, 24, 32)
+        ));
+
+        JLabel iconLabel = new JLabel(UIManager.getIcon("OptionPane.errorIcon"));
+        iconLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 16));
+        JLabel messageLabel = new JLabel("<html>" + message.replace("\n", "<br>") + "</html>");
+        messageLabel.setFont(SEGOE_UI_PLAIN_14.deriveFont(Font.BOLD, 15f));
+        messageLabel.setForeground(APP_THEME_COLOR);
+
+        JPanel msgPanel = new JPanel(new BorderLayout());
+        msgPanel.setOpaque(false);
+        msgPanel.add(iconLabel, BorderLayout.WEST);
+        msgPanel.add(messageLabel, BorderLayout.CENTER);
+        panel.add(msgPanel, BorderLayout.CENTER);
+
+        JButton okButton = createModernButton("OK");
+        okButton.addActionListener(e -> dialog.dispose());
+        JPanel btnPanel = new JPanel();
+        btnPanel.setOpaque(false);
+        btnPanel.add(okButton);
+        panel.add(btnPanel, BorderLayout.SOUTH);
+
+        dialog.getContentPane().add(panel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(parent);
+        dialog.setVisible(true);
+    }
+
     public static class RoundedBorder extends AbstractBorder {
         private final int radius;
         private final Color defaultBorderColor;

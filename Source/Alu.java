@@ -657,7 +657,7 @@ public class Alu extends JFrame {
     private void showError(String message) {
         resultField.setText(""); 
         if (binaryResultTextField != null) binaryResultTextField.setText("");
-        JOptionPane.showMessageDialog(this, message, "Input Error", JOptionPane.ERROR_MESSAGE);
+        Ui.showErrorDialog(this, message, "Input Error");
     }
 
     private void animateResultField() {
