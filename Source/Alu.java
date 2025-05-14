@@ -23,7 +23,6 @@ public class Alu extends JFrame {
     private Map<String, Function<Integer, Integer>> unaryOperations;
     private Timer animationTimer;
     private JLabel secondaryLabelA, secondaryLabelB;
-    private static final Font BINARY_TEXT_FIELD_FONT = new Font("Consolas", Font.PLAIN, 16);
     private static final String DEFAULT_BINARY_STRING = "00000000";
     private static final int RESULT_ANIMATION_DURATION = 600; 
     private int hoveredHistoryIndex = -1; 
@@ -44,6 +43,79 @@ public class Alu extends JFrame {
 
         public String getKey() {
             return operationKey;
+        }
+    }
+
+    private static class PressEffectButton extends JButton {
+        private boolean pressedEffect = false;
+        private final Color topColor;
+        private final Color bottomColor;
+        private final boolean isGradient;
+
+        public PressEffectButton(String text, Color top, Color bottom, boolean isGradient) {
+            super(text);
+            this.topColor = top;
+            this.bottomColor = bottom;
+            this.isGradient = isGradient;
+            setOpaque(false);
+            setContentAreaFilled(false);
+            setBorderPainted(false);
+            setForeground(Color.WHITE);
+            setFont(Ui.SEGOE_UI_BOLD_14.deriveFont(Font.BOLD, 17f));
+            setCursor(new Cursor(Cursor.HAND_CURSOR));
+            setFocusPainted(false);
+            setFocusable(false);
+            setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    pressedEffect = true;
+                    repaint();
+                }
+
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    Timer t = new Timer(120, evt -> {
+                        pressedEffect = false;
+                        repaint();
+                    });
+                    t.setRepeats(false);
+                    t.start();
+                }
+            });
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            int width = getWidth();
+            int height = getHeight();
+            Color top = topColor;
+            Color bottom = bottomColor;
+            if (pressedEffect) {
+                top = top.darker();
+                bottom = bottom.darker();
+            }
+            if (isGradient) {
+                GradientPaint gradient = new GradientPaint(0, 0, top, 0, height, bottom);
+                g2.setPaint(gradient);
+            } else {
+                g2.setColor(top);
+            }
+            g2.fillRoundRect(0, 0, width, height, 20, 20);
+            g2.setColor(new Color(255, 255, 255, 40));
+            g2.fillRoundRect(0, 0, width, height / 2, 20, 20);
+            FontMetrics fm = g2.getFontMetrics(getFont());
+            String text = getText();
+            int textWidth = fm.stringWidth(text);
+            int textHeight = fm.getAscent();
+            int x = (width - textWidth) / 2;
+            int y = (height + textHeight) / 2 - 3;
+            g2.setColor(getForeground());
+            g2.setFont(getFont());
+            g2.drawString(text, x, y);
+            g2.dispose();
         }
     }
 
@@ -89,30 +161,6 @@ public class Alu extends JFrame {
         }
     }
 
-    private JTextField createStyledTextField(boolean editable) {
-        JTextField field = new JTextField(15);
-        field.setOpaque(true); 
-        field.setBackground(Ui.FIELD_BACKGROUND_DARK);
-        field.setForeground(Ui.TEXT_LIGHT);
-        field.setFont(Ui.SEGOE_UI_PLAIN_14);
-        field.setCaretColor(Ui.TEXT_LIGHT);
-        field.setEditable(editable);
-        field.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-        field.setHorizontalAlignment(JTextField.LEFT);
-
-        Border roundedPart = new Ui.RoundedBorder(Ui.TEXT_FIELD_BORDER_RADIUS, Ui.SUBTLE_BORDER_COLOR, Ui.DARK_THEME_FOCUS_BORDER_COLOR);
-        Border paddingPart = BorderFactory.createEmptyBorder(
-                Ui.TEXT_FIELD_VERTICAL_PADDING, Ui.TEXT_FIELD_HORIZONTAL_PADDING,
-                Ui.TEXT_FIELD_VERTICAL_PADDING, Ui.TEXT_FIELD_HORIZONTAL_PADDING);
-        field.setBorder(BorderFactory.createCompoundBorder(roundedPart, paddingPart));
-
-        field.addFocusListener(new FocusAdapter() {
-            @Override public void focusGained(FocusEvent e) { field.repaint(); }
-            @Override public void focusLost(FocusEvent e) { field.repaint(); }
-        });
-        return field;
-    }
-
     private OperationItem[] getStyledOperationItems() {
         return new OperationItem[]{
             new OperationItem("ADD", "ADD"),
@@ -123,46 +171,6 @@ public class Alu extends JFrame {
             new OperationItem("OR", "OR"),
             new OperationItem("NOT", "NOT")
         };
-    }
-
-    private void styleComboBox(JComboBox<?> combo) {
-        combo.setOpaque(true);
-        combo.setBackground(Ui.FIELD_BACKGROUND_DARK);
-        combo.setForeground(Ui.TEXT_LIGHT);
-        combo.setFont(Ui.SEGOE_UI_PLAIN_14);
-        combo.setPreferredSize(new Dimension(0, 44));
-
-        Border roundedPart = new Ui.RoundedBorder(Ui.TEXT_FIELD_BORDER_RADIUS, Ui.SUBTLE_BORDER_COLOR, Ui.DARK_THEME_FOCUS_BORDER_COLOR);
-        combo.setBorder(roundedPart);
-
-        if (!(combo.getRenderer() instanceof Ui.ModernComboBoxRenderer)) {
-            combo.setRenderer(new Ui.ModernComboBoxRenderer() {
-                @Override
-                public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                    JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                    label.setBackground(Ui.FIELD_BACKGROUND_DARK);
-                    label.setForeground(isSelected ? Color.WHITE : Ui.TEXT_LIGHT);
-                    label.setFont(Ui.SEGOE_UI_PLAIN_14);
-                    label.setBorder(BorderFactory.createEmptyBorder(Ui.COMBO_BOX_RENDERER_PADDING_VERTICAL, Ui.COMBO_BOX_RENDERER_PADDING_HORIZONTAL, Ui.COMBO_BOX_RENDERER_PADDING_VERTICAL, Ui.COMBO_BOX_RENDERER_PADDING_HORIZONTAL));
-                    if (isSelected) {
-                        label.setBackground(Ui.APP_THEME_COLOR.darker());
-                    }
-                    return label;
-                }
-            });
-        }
-
-        for (Component child : combo.getComponents()) {
-            if (child instanceof JButton) {
-                JButton arrowButton = (JButton) child;
-                arrowButton.setOpaque(false);
-                arrowButton.setContentAreaFilled(false);
-                arrowButton.setBorderPainted(false);
-                arrowButton.setBackground(Ui.FIELD_BACKGROUND_DARK);
-                arrowButton.setPreferredSize(new Dimension(44, 44));
-                break;
-            }
-        }
     }
 
     private int addLabeledComponentToPanel(JPanel panel, GridBagConstraints gbc, String labelText, JComponent component, int gridx, int startY) {
@@ -191,9 +199,9 @@ public class Alu extends JFrame {
     private void setupGUI() {
         setTitle("ALUSim");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        getContentPane().setBackground(Ui.FRAME_BACKGROUND);        
+        getContentPane().setBackground(Ui.FRAME_BACKGROUND);
         setLayout(new BorderLayout(15, 0));
-        getRootPane().setBorder(BorderFactory.createEmptyBorder(8, 40, 8, 40)); 
+        getRootPane().setBorder(BorderFactory.createEmptyBorder(12, 48, 12, 48));
 
         JPanel headerPanel = new JPanel();
         headerPanel.setBackground(Ui.FRAME_BACKGROUND);
@@ -202,7 +210,7 @@ public class Alu extends JFrame {
 
         JLabel titleLabel = new JLabel("ALU Calculator");
         titleLabel.setFont(Ui.TITLE_FONT);
-        titleLabel.setForeground(Ui.TEXT_LIGHT);
+        titleLabel.setForeground(Ui.APP_THEME_COLOR);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel subtitleLabel = new JLabel("Arithmetic and Logic Operation Tool");
@@ -210,47 +218,69 @@ public class Alu extends JFrame {
         subtitleLabel.setForeground(Ui.LABEL_TEXT_LIGHT);
         subtitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        headerPanel.add(Box.createRigidArea(new Dimension(0, 8)));
         headerPanel.add(titleLabel);
-        headerPanel.add(Box.createRigidArea(new Dimension(0, 2))); 
+        headerPanel.add(Box.createRigidArea(new Dimension(0, 4)));
         headerPanel.add(subtitleLabel);
-        
+        headerPanel.add(Box.createRigidArea(new Dimension(0, 16)));
+
         JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.setOpaque(true);
         centerPanel.setBackground(Ui.FRAME_BACKGROUND);
         centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
-        JPanel mainContentPanel = new JPanel(new GridBagLayout());
-        mainContentPanel.setOpaque(true);
-        mainContentPanel.setBackground(Ui.FRAME_BACKGROUND);
-        mainContentPanel.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
+        JPanel mainContentPanel = Ui.createRoundedPanel();
+        mainContentPanel.setLayout(new GridBagLayout());
+        mainContentPanel.setBackground(Ui.DEFAULT_PANEL_BACKGROUND);
+        mainContentPanel.setBorder(BorderFactory.createEmptyBorder(16, 32, 16, 32));
         GridBagConstraints gbc = new GridBagConstraints();
 
-        input1Field = createStyledTextField(true);
+        input1Field = Ui.createModernTextField();
         input1Field.setToolTipText("Enter first number");
-        input2Field = createStyledTextField(true);
+        input2Field = Ui.createModernTextField();
         input2Field.setToolTipText("Enter second number");
-        resultField = createStyledTextField(false);
+        Ui.setInputFieldFocusBehavior(input1Field, input2Field);
+        getRootPane().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                Component comp = getRootPane().getContentPane().getComponentAt(e.getPoint());
+                if (!(comp instanceof JTextField)) {
+                    if (input1Field.hasFocus() || input2Field.hasFocus()) {
+                        getRootPane().requestFocusInWindow();
+                    }
+                }
+            }
+        });
+        resultField = Ui.createModernTextField();
         resultField.setToolTipText("Decimal result of the operation");
+        resultField.setEditable(false);
+        resultField.setBackground(Ui.FIELD_BACKGROUND_DARK);
+        resultField.setFont(Ui.SEGOE_UI_BOLD_14);
 
-        binaryInput1TextField = createStyledTextField(false);
-        binaryInput1TextField.setFont(BINARY_TEXT_FIELD_FONT);
+        binaryInput1TextField = Ui.createModernTextField();
+        binaryInput1TextField.setFont(new Font("Consolas", Font.PLAIN, 18));
         binaryInput1TextField.setText(DEFAULT_BINARY_STRING);
         binaryInput1TextField.setHorizontalAlignment(JTextField.LEFT);
         binaryInput1TextField.setToolTipText("Secondary representation of Input A");
+        binaryInput1TextField.setEditable(false);
+        binaryInput1TextField.setBackground(Ui.FIELD_BACKGROUND_DARK);
 
-        binaryInput2TextField = createStyledTextField(false);
-        binaryInput2TextField.setFont(BINARY_TEXT_FIELD_FONT);
+        binaryInput2TextField = Ui.createModernTextField();
+        binaryInput2TextField.setFont(new Font("Consolas", Font.PLAIN, 18));
         binaryInput2TextField.setText(DEFAULT_BINARY_STRING);
         binaryInput2TextField.setHorizontalAlignment(JTextField.LEFT);
-        binaryInput2TextField.setToolTipText("Secondary representation of Input B");        
-        binaryResultTextField = createStyledTextField(false);
+        binaryInput2TextField.setToolTipText("Secondary representation of Input B");
+        binaryInput2TextField.setEditable(false);
+        binaryInput2TextField.setBackground(Ui.FIELD_BACKGROUND_DARK);
+
+        binaryResultTextField = Ui.createModernTextField();
         binaryResultTextField.setFont(Ui.SEGOE_UI_PLAIN_14);
         binaryResultTextField.setHorizontalAlignment(JTextField.LEFT);
         binaryResultTextField.setToolTipText("Binary representation of the result");
         binaryResultTextField.setBackground(Ui.FIELD_BACKGROUND_DARK);
+        binaryResultTextField.setEditable(false);
 
-        baseSelector = new JComboBox<>(new String[]{"DECIMAL", "BINARY"});
-        styleComboBox(baseSelector);
+        baseSelector = Ui.createModernComboBox(new String[]{"DECIMAL", "BINARY"});
         baseSelector.setToolTipText("Select input number system");
         baseSelector.addActionListener(e -> {
             updateSecondaryLabels();
@@ -266,11 +296,11 @@ public class Alu extends JFrame {
                 binaryInput1TextField.setText(DEFAULT_BINARY_STRING);
                 binaryInput2TextField.setText(DEFAULT_BINARY_STRING);
             }
-        });        
-        operationCombo = new JComboBox<>(getStyledOperationItems());
-        styleComboBox(operationCombo);
+        });
+
+        operationCombo = Ui.createModernComboBox(getStyledOperationItems());
         operationCombo.setToolTipText("Select operation to perform");
-        
+
         int currentY = 0;
         secondaryLabelA = new JLabel();
         secondaryLabelA.setFont(Ui.COMPONENT_LABEL_FONT);
@@ -284,11 +314,11 @@ public class Alu extends JFrame {
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.SOUTHWEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(16, 14, 5, 14); 
+        gbc.insets = new Insets(16, 14, 5, 14);
         mainContentPanel.add(secondaryLabelA, gbc);
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.NORTHWEST;
-        gbc.insets = new Insets(0, 14, 16, 14); 
+        gbc.insets = new Insets(0, 14, 16, 14);
         mainContentPanel.add(binaryInput1TextField, gbc);
         addLabeledComponentToPanel(mainContentPanel, gbc, "Select Number System", baseSelector, 2, 0);
 
@@ -296,93 +326,48 @@ public class Alu extends JFrame {
         gbc.gridx = 1;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.SOUTHWEST;
-        gbc.insets = new Insets(16, 14, 5, 14); 
+        gbc.insets = new Insets(16, 14, 5, 14);
         mainContentPanel.add(secondaryLabelB, gbc);
         gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.NORTHWEST;
-        gbc.insets = new Insets(0, 14, 16, 14); 
+        gbc.insets = new Insets(0, 14, 16, 14);
         mainContentPanel.add(binaryInput2TextField, gbc);
-        addLabeledComponentToPanel(mainContentPanel, gbc, "Select Operation", operationCombo, 2, 2);        
+        addLabeledComponentToPanel(mainContentPanel, gbc, "Select Operation", operationCombo, 2, 2);
 
         int fieldHeight = input1Field.getPreferredSize().height;
 
-        int buttonHeight = fieldHeight; 
-        int dropdownWidth = baseSelector.getPreferredSize().width; 
+        int buttonHeight = fieldHeight;
+        int dropdownWidth = baseSelector.getPreferredSize().width;
         int groupButtonWidth = dropdownWidth;
         int buttonGap = 8;
         int buttonWidth = (groupButtonWidth - buttonGap) / 2;
-        calculateButton = new JButton("Calculate") {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                int width = getWidth();
-                int height = getHeight();
-                GradientPaint gradient = new GradientPaint(
-                    0, 0, Ui.APP_THEME_COLOR,
-                    0, height, Ui.APP_THEME_COLOR.darker()
-                );
-                g2.setPaint(gradient);
-                g2.fillRoundRect(0, 0, width, height, 20, 20);
-                g2.setColor(new Color(255, 255, 255, 40));
-                g2.fillRoundRect(0, 0, width, height/2, 20, 20);
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        calculateButton.setOpaque(false);
-        calculateButton.setContentAreaFilled(false);
-        calculateButton.setBorderPainted(false);
-        calculateButton.setForeground(Color.WHITE);
-        calculateButton.setFont(Ui.SEGOE_UI_BOLD_14.deriveFont(Font.BOLD, 17f)); 
-        calculateButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        calculateButton.addActionListener(e -> performOperation());
+
+        calculateButton = new PressEffectButton("Calculate", Ui.APP_THEME_COLOR, Ui.APP_THEME_COLOR.darker(), true);
         calculateButton.setToolTipText("Perform calculation (Alt+Enter or specific operation shortcut)");
+        calculateButton.addActionListener(e -> {
+            performOperation();
+            getRootPane().requestFocusInWindow();
+        });
+        calculateButton.setPreferredSize(new Dimension(buttonWidth, buttonHeight));
+        calculateButton.setMinimumSize(new Dimension(buttonWidth, buttonHeight));
+        calculateButton.setMaximumSize(new Dimension(buttonWidth, buttonHeight));
         calculateButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
                 calculateButton.setForeground(new Color(255, 255, 255));
             }
+
             @Override
             public void mouseExited(MouseEvent e) {
                 calculateButton.setForeground(Color.WHITE);
             }
         });
-        calculateButton.setPreferredSize(new Dimension(buttonWidth, buttonHeight));
-        calculateButton.setMinimumSize(new Dimension(buttonWidth, buttonHeight));
-        calculateButton.setMaximumSize(new Dimension(buttonWidth, buttonHeight));
-        calculateButton.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0)); 
 
-        JButton clearButton = new JButton("Clear") {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                int width = getWidth();
-                int height = getHeight();
-                GradientPaint gradient = new GradientPaint(
-                    0, 0, new Color(200, 0, 80),
-                    0, height, new Color(150, 0, 60)
-                );
-                g2.setPaint(gradient);
-                g2.fillRoundRect(0, 0, width, height, 20, 20);
-                g2.setColor(new Color(255, 255, 255, 40));
-                g2.fillRoundRect(0, 0, width, height/2, 20, 20);
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        clearButton.setOpaque(false);
-        clearButton.setContentAreaFilled(false);
-        clearButton.setBorderPainted(false);
-        clearButton.setForeground(Color.WHITE);
-        clearButton.setFont(Ui.SEGOE_UI_BOLD_14.deriveFont(Font.BOLD, 17f)); 
-        clearButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        JButton clearButton = new PressEffectButton("Clear", new Color(200, 0, 80), new Color(150, 0, 60), true);
         clearButton.setToolTipText("Clear all fields");
         clearButton.setPreferredSize(new Dimension(buttonWidth, buttonHeight));
         clearButton.setMinimumSize(new Dimension(buttonWidth, buttonHeight));
         clearButton.setMaximumSize(new Dimension(buttonWidth, buttonHeight));
-        clearButton.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0)); 
         clearButton.addActionListener(e -> {
             input1Field.setText("");
             input2Field.setText("");
@@ -390,7 +375,7 @@ public class Alu extends JFrame {
             binaryInput1TextField.setText(DEFAULT_BINARY_STRING);
             binaryInput2TextField.setText(DEFAULT_BINARY_STRING);
             binaryResultTextField.setText("");
-            input1Field.requestFocus();
+            getRootPane().requestFocusInWindow();
         });
 
         JPanel groupButtonPanel = new JPanel(new GridBagLayout());
@@ -400,10 +385,10 @@ public class Alu extends JFrame {
         gbcBtn.gridy = 0;
         gbcBtn.weightx = 0.5;
         gbcBtn.fill = GridBagConstraints.BOTH;
-        gbcBtn.insets = new Insets(0, 0, 0, buttonGap/2);
+        gbcBtn.insets = new Insets(0, 0, 0, buttonGap / 2);
         groupButtonPanel.add(calculateButton, gbcBtn);
         gbcBtn.gridx = 1;
-        gbcBtn.insets = new Insets(0, buttonGap/2, 0, 0);
+        gbcBtn.insets = new Insets(0, buttonGap / 2, 0, 0);
         groupButtonPanel.add(clearButton, gbcBtn);
         groupButtonPanel.setPreferredSize(new Dimension(groupButtonWidth, buttonHeight));
         groupButtonPanel.setMinimumSize(new Dimension(groupButtonWidth, buttonHeight));
@@ -420,7 +405,7 @@ public class Alu extends JFrame {
         resultField.setBorder(resultBorder);
         binaryResultTextField.setBorder(resultBorder);
         resultField.setBackground(Ui.FIELD_BACKGROUND_DARK);
-        binaryResultTextField.setBackground(Ui.FIELD_BACKGROUND_DARK); 
+        binaryResultTextField.setBackground(Ui.FIELD_BACKGROUND_DARK);
         Dimension resultSize = resultField.getPreferredSize();
         binaryResultTextField.setPreferredSize(resultSize);
         binaryResultTextField.setMinimumSize(resultSize);
@@ -532,6 +517,7 @@ public class Alu extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setMinimumSize(new Dimension(960, 720));
         setLocationRelativeTo(null);
+        getRootPane().requestFocusInWindow();
     }
 
     private void updateSecondaryLabels() {
@@ -561,75 +547,88 @@ public class Alu extends JFrame {
         historyPanel.setBorder(BorderFactory.createCompoundBorder(
             new Ui.RoundedBorder(Ui.GENERAL_BORDER_RADIUS, Ui.SUBTLE_BORDER_COLOR, Ui.FOCUS_HIGHLIGHT_COLOR), 
             BorderFactory.createEmptyBorder(8, 12, 8, 12)));
-            
         historyPanel.setPreferredSize(new Dimension(300, 0));
         historyPanel.setMinimumSize(new Dimension(250, 0));        
         JPanel historyTitlePanel = new JPanel(new BorderLayout());
         historyTitlePanel.setBackground(Ui.FRAME_BACKGROUND);
         historyTitlePanel.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
-        
         JLabel historyTitleLabel = new JLabel("Calculation History");
         historyTitleLabel.setFont(Ui.SEGOE_UI_BOLD_14.deriveFont(Font.BOLD, 19f));
         historyTitleLabel.setForeground(Ui.APP_THEME_COLOR);
         historyTitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         historyTitlePanel.add(historyTitleLabel, BorderLayout.CENTER);
-        
         historyPanel.add(historyTitlePanel, BorderLayout.NORTH);        
         historyModel = new DefaultListModel<>();
         historyList = new JList<>(historyModel);
         historyList.setFont(new Font("Inter", Font.PLAIN, 16));
         historyList.setBackground(Ui.FRAME_BACKGROUND);
         historyList.setForeground(Ui.TEXT_LIGHT);
-        historyList.setSelectionBackground(new Color(233, 233, 249)); 
+        historyList.setSelectionBackground(Ui.FRAME_BACKGROUND);
+        historyList.setSelectionForeground(Ui.TEXT_LIGHT);
         historyList.setFixedCellHeight(28); 
-        historyList.setSelectionForeground(Ui.APP_THEME_COLOR);
         historyList.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8)); 
+        historyList.setFocusable(false);
+        historyList.setCursor(new Cursor(Cursor.HAND_CURSOR));
         historyList.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
             JPanel panel = new JPanel(new BorderLayout());
             panel.setOpaque(true);
-            panel.setBackground(isSelected ? new Color(220,220,240) : Ui.FRAME_BACKGROUND);
+            Color bg = Ui.FRAME_BACKGROUND;
+            boolean isEntryHovered = false;
+            Point mouse = list.getMousePosition();
+            if (mouse != null) {
+                Rectangle cellBounds = list.getCellBounds(index, index);
+                if (cellBounds != null && cellBounds.contains(mouse)) {
+                    isEntryHovered = true;
+                }
+            }
+            if (isEntryHovered) {
+                bg = new Color(230, 240, 255);
+            }
+            panel.setBackground(bg);
             JLabel label = new JLabel(value);
             label.setFont(new Font("Inter", Font.PLAIN, 14));
-            label.setForeground(isSelected ? Ui.APP_THEME_COLOR : Ui.TEXT_LIGHT);
+            label.setForeground(Ui.TEXT_LIGHT);
             label.setBorder(BorderFactory.createEmptyBorder(2, 12, 2, 12));
             panel.add(label, BorderLayout.CENTER);
-            if (index == hoveredHistoryIndex) {
+            if (isEntryHovered) {
+                JPanel xPanel = new JPanel(new BorderLayout());
+                xPanel.setOpaque(false);
+                xPanel.setPreferredSize(new Dimension(40, 28));
                 JLabel xLabel = new JLabel("✕");
-                xLabel.setFont(new Font("Dialog", Font.BOLD, 14));
+                xLabel.setFont(new Font("Dialog", Font.BOLD, 16));
                 xLabel.setForeground(Color.RED.darker());
-                xLabel.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
-                panel.add(xLabel, BorderLayout.EAST);
+                xLabel.setHorizontalAlignment(SwingConstants.CENTER);
+                xLabel.setVerticalAlignment(SwingConstants.CENTER);
+                xLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                xPanel.add(xLabel, BorderLayout.CENTER);
+                panel.add(xPanel, BorderLayout.EAST);
             }
+            panel.setCursor(new Cursor(Cursor.HAND_CURSOR));
             return panel;
         });
         historyList.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
-                int idx = historyList.locationToIndex(e.getPoint());
-                if (idx != hoveredHistoryIndex) {
-                    hoveredHistoryIndex = idx;
-                    historyList.repaint();
-                }
+                historyList.repaint();
             }
         });
         historyList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseExited(MouseEvent e) {
-                hoveredHistoryIndex = -1;
                 historyList.repaint();
             }
             @Override
             public void mouseClicked(MouseEvent e) {
-                int idx = historyList.locationToIndex(e.getPoint());
-                if (idx >= 0 && idx < historyModel.size() && idx == hoveredHistoryIndex) {
-                    Rectangle cellBounds = historyList.getCellBounds(idx, idx);
-                    if (cellBounds != null) {
-                        int xButtonWidth = 24; 
-                        int xButtonX = cellBounds.x + cellBounds.width - xButtonWidth;
-                        if (e.getX() >= xButtonX) {
-                            aluLogic.removeHistoryEntry(idx);
-                        }
-                    }
+                int index = historyList.locationToIndex(e.getPoint());
+                if (index < 0) return;
+                Rectangle cellBounds = historyList.getCellBounds(index, index);
+                if (cellBounds == null) return;
+                int xButtonWidth = 40;
+                int xButtonStart = cellBounds.x + cellBounds.width - xButtonWidth;
+                Point mouse = e.getPoint();
+                if (cellBounds.contains(mouse) && e.getX() >= xButtonStart && e.getX() <= cellBounds.x + cellBounds.width) {
+                    aluLogic.removeHistoryEntry(index);
+                    historyList.repaint();
                 }
             }
         });
@@ -637,21 +636,15 @@ public class Alu extends JFrame {
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.setBackground(Ui.FRAME_BACKGROUND);
         historyPanel.add(scrollPane, BorderLayout.CENTER);
-
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         bottomPanel.setOpaque(false);
-        JButton deleteAllButton = new JButton();
-        deleteAllButton.setToolTipText("Clear all history");
-        deleteAllButton.setFocusable(false);
-        deleteAllButton.setContentAreaFilled(false);
-        deleteAllButton.setBorderPainted(false);
-        deleteAllButton.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
-        deleteAllButton.setIcon(new Icon() {
+        JButton deleteAllButton = new PressEffectButton("", new Color(180, 0, 0), new Color(120, 0, 0), false) {
             @Override
-            public void paintIcon(Component c, Graphics g, int x, int y) {
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                int offsetX = x, offsetY = y;
+                int offsetX = 0, offsetY = 0;
                 g2.setColor(new Color(180, 0, 0));
                 g2.fillRoundRect(offsetX + 6, offsetY + 10, 16, 14, 6, 6);
                 g2.setColor(new Color(120, 0, 0));
@@ -669,11 +662,13 @@ public class Alu extends JFrame {
                 }
                 g2.dispose();
             }
-            @Override
-            public int getIconWidth() { return 32; }
-            @Override
-            public int getIconHeight() { return 32; }
-        });
+        };
+        deleteAllButton.setToolTipText("Clear all history");
+        deleteAllButton.setFocusable(false);
+        deleteAllButton.setContentAreaFilled(false);
+        deleteAllButton.setBorderPainted(false);
+        deleteAllButton.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+        deleteAllButton.setPreferredSize(new Dimension(32, 32));
         deleteAllButton.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(historyPanel, "Clear all calculation history?", "Confirm", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
