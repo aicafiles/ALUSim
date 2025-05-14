@@ -497,18 +497,43 @@ public class Alu extends JFrame {
         historyList.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12)); 
         historyList.setFocusable(false);
         historyList.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        historyList.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                int index = historyList.locationToIndex(e.getPoint());
+                if (hoveredHistoryIndex != index) {
+                    hoveredHistoryIndex = index;
+                    historyList.repaint();
+                }
+            }
+        });
+        historyList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseExited(MouseEvent e) {
+                if (hoveredHistoryIndex != -1) {
+                    hoveredHistoryIndex = -1;
+                    historyList.repaint();
+                }
+            }
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int index = historyList.locationToIndex(e.getPoint());
+                if (index < 0) return;
+                Rectangle cellBounds = historyList.getCellBounds(index, index);
+                if (cellBounds == null) return;
+                int xButtonWidth = 38;
+                int xButtonStart = cellBounds.x + cellBounds.width - xButtonWidth;
+                Point mouse = e.getPoint();
+                if (cellBounds.contains(mouse) && e.getX() >= xButtonStart && e.getX() <= cellBounds.x + cellBounds.width) {
+                    aluLogic.removeHistoryEntry(index);
+                }
+            }
+        });
         historyList.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
             JPanel panel = new JPanel(new BorderLayout());
             panel.setOpaque(false);
             Color bg = Ui.PANEL_BACKGROUND;
-            boolean isEntryHovered = false;
-            Point mouse = list.getMousePosition();
-            if (mouse != null) {
-                Rectangle cellBounds = list.getCellBounds(index, index);
-                if (cellBounds != null && cellBounds.contains(mouse)) {
-                    isEntryHovered = true;
-                }
-            }
+            boolean isEntryHovered = (index == hoveredHistoryIndex);
             if (isEntryHovered) {
                 bg = Ui.APP_GRADIENT_END;
             }
@@ -547,39 +572,6 @@ public class Alu extends JFrame {
             card.setCursor(new Cursor(Cursor.HAND_CURSOR));
             panel.add(card, BorderLayout.CENTER);
             return panel;
-        });
-        historyList.addMouseMotionListener(new MouseMotionAdapter() {
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                int index = historyList.locationToIndex(e.getPoint());
-                if (index >= 0) {
-                    Rectangle cellBounds = historyList.getCellBounds(index, index);
-                    if (cellBounds != null) historyList.repaint(cellBounds);
-                }
-            }
-        });
-        historyList.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseExited(MouseEvent e) {
-                int index = historyList.locationToIndex(e.getPoint());
-                if (index >= 0) {
-                    Rectangle cellBounds = historyList.getCellBounds(index, index);
-                    if (cellBounds != null) historyList.repaint(cellBounds);
-                }
-            }
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                int index = historyList.locationToIndex(e.getPoint());
-                if (index < 0) return;
-                Rectangle cellBounds = historyList.getCellBounds(index, index);
-                if (cellBounds == null) return;
-                int xButtonWidth = 38;
-                int xButtonStart = cellBounds.x + cellBounds.width - xButtonWidth;
-                Point mouse = e.getPoint();
-                if (cellBounds.contains(mouse) && e.getX() >= xButtonStart && e.getX() <= cellBounds.x + cellBounds.width) {
-                    aluLogic.removeHistoryEntry(index);
-                }
-            }
         });
         JScrollPane scrollPane = new JScrollPane(historyList);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
