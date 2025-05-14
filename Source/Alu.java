@@ -26,6 +26,7 @@ public class Alu extends JFrame {
     private static final Font BINARY_TEXT_FIELD_FONT = new Font("Consolas", Font.PLAIN, 16);
     private static final String DEFAULT_BINARY_STRING = "00000000";
     private static final int RESULT_ANIMATION_DURATION = 600; 
+    private int hoveredHistoryIndex = -1; 
 
     private static class OperationItem {
         private final String displayString;
@@ -574,7 +575,6 @@ public class Alu extends JFrame {
         historyTitlePanel.add(historyTitleLabel, BorderLayout.CENTER);
         
         historyPanel.add(historyTitlePanel, BorderLayout.NORTH);        
-        historyPanel.add(historyTitlePanel, BorderLayout.NORTH);        
         historyModel = new DefaultListModel<>();
         historyList = new JList<>(historyModel);
         historyList.setFont(new Font("Inter", Font.PLAIN, 16));
@@ -584,21 +584,105 @@ public class Alu extends JFrame {
         historyList.setFixedCellHeight(28); 
         historyList.setSelectionForeground(Ui.APP_THEME_COLOR);
         historyList.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8)); 
-        historyList.setCellRenderer(new DefaultListCellRenderer() {
+        historyList.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
+            JPanel panel = new JPanel(new BorderLayout());
+            panel.setOpaque(true);
+            panel.setBackground(isSelected ? new Color(220,220,240) : Ui.FRAME_BACKGROUND);
+            JLabel label = new JLabel(value);
+            label.setFont(new Font("Inter", Font.PLAIN, 14));
+            label.setForeground(isSelected ? Ui.APP_THEME_COLOR : Ui.TEXT_LIGHT);
+            label.setBorder(BorderFactory.createEmptyBorder(2, 12, 2, 12));
+            panel.add(label, BorderLayout.CENTER);
+            if (index == hoveredHistoryIndex) {
+                JLabel xLabel = new JLabel("✕");
+                xLabel.setFont(new Font("Dialog", Font.BOLD, 14));
+                xLabel.setForeground(Color.RED.darker());
+                xLabel.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
+                panel.add(xLabel, BorderLayout.EAST);
+            }
+            return panel;
+        });
+        historyList.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                JLabel c = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                c.setFont(new Font("Inter", Font.PLAIN, 14));
-                c.setForeground(isSelected ? Ui.APP_THEME_COLOR : Ui.TEXT_LIGHT);
-                c.setBackground(isSelected ? new Color(220,220,240) : Ui.FRAME_BACKGROUND);
-                c.setBorder(BorderFactory.createEmptyBorder(2, 12, 2, 12));
-                return c;
+            public void mouseMoved(MouseEvent e) {
+                int idx = historyList.locationToIndex(e.getPoint());
+                if (idx != hoveredHistoryIndex) {
+                    hoveredHistoryIndex = idx;
+                    historyList.repaint();
+                }
+            }
+        });
+        historyList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseExited(MouseEvent e) {
+                hoveredHistoryIndex = -1;
+                historyList.repaint();
+            }
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int idx = historyList.locationToIndex(e.getPoint());
+                if (idx >= 0 && idx < historyModel.size() && idx == hoveredHistoryIndex) {
+                    Rectangle cellBounds = historyList.getCellBounds(idx, idx);
+                    if (cellBounds != null) {
+                        int xButtonWidth = 24; 
+                        int xButtonX = cellBounds.x + cellBounds.width - xButtonWidth;
+                        if (e.getX() >= xButtonX) {
+                            aluLogic.removeHistoryEntry(idx);
+                        }
+                    }
+                }
             }
         });
         JScrollPane scrollPane = new JScrollPane(historyList);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.setBackground(Ui.FRAME_BACKGROUND);
         historyPanel.add(scrollPane, BorderLayout.CENTER);
+
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        bottomPanel.setOpaque(false);
+        JButton deleteAllButton = new JButton();
+        deleteAllButton.setToolTipText("Clear all history");
+        deleteAllButton.setFocusable(false);
+        deleteAllButton.setContentAreaFilled(false);
+        deleteAllButton.setBorderPainted(false);
+        deleteAllButton.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+        deleteAllButton.setIcon(new Icon() {
+            @Override
+            public void paintIcon(Component c, Graphics g, int x, int y) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int w = getIconWidth(), h = getIconHeight();
+                int offsetX = x, offsetY = y;
+                g2.setColor(new Color(180, 0, 0));
+                g2.fillRoundRect(offsetX + 6, offsetY + 10, 16, 14, 6, 6);
+                g2.setColor(new Color(120, 0, 0));
+                g2.setStroke(new BasicStroke(2f));
+                g2.drawRoundRect(offsetX + 6, offsetY + 10, 16, 14, 6, 6);
+                g2.setColor(new Color(120, 0, 0));
+                g2.fillRoundRect(offsetX + 8, offsetY + 6, 12, 6, 3, 3);
+                g2.setColor(new Color(80, 0, 0));
+                g2.drawRoundRect(offsetX + 8, offsetY + 6, 12, 6, 3, 3);
+                g2.setColor(new Color(120, 0, 0));
+                g2.fillRect(offsetX + 13, offsetY + 3, 4, 4);
+                g2.setColor(new Color(255,255,255,200));
+                for (int i = 0; i < 3; i++) {
+                    g2.drawLine(offsetX + 10 + i*4, offsetY + 14, offsetX + 10 + i*4, offsetY + 20);
+                }
+                g2.dispose();
+            }
+            @Override
+            public int getIconWidth() { return 32; }
+            @Override
+            public int getIconHeight() { return 32; }
+        });
+        deleteAllButton.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(historyPanel, "Clear all calculation history?", "Confirm", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                aluLogic.clearHistory();
+            }
+        });
+        bottomPanel.add(deleteAllButton);
+        historyPanel.add(bottomPanel, BorderLayout.SOUTH);
     }
 
     private void setupAccessibility() {

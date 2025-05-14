@@ -153,6 +153,28 @@ public class Logic {
         changes.firePropertyChange("historyUpdate", null, getHistory());
     }
 
+    public void clearHistory() {
+        for (int i = 0; i < recentCalculations.length; i++) {
+            recentCalculations[i] = null;
+        }
+        historyIndex = 0;
+        changes.firePropertyChange("historyUpdate", null, getHistory());
+    }
+
+    public void removeHistoryEntry(int index) {
+        if (index < 0 || index >= recentCalculations.length || recentCalculations[index] == null) return;
+        for (int i = index; i < recentCalculations.length - 1; i++) {
+            recentCalculations[i] = recentCalculations[i + 1];
+        }
+        recentCalculations[recentCalculations.length - 1] = null;
+        int count = 0;
+        for (String entry : recentCalculations) {
+            if (entry != null) count++;
+        }
+        historyIndex = count % MAX_HISTORY_ENTRIES;
+        changes.firePropertyChange("historyUpdate", null, getHistory());
+    }
+
     private String formatNumber(int number, String base) {
         if ("BINARY".equals(base.toUpperCase())) {
             return Integer.toBinaryString(number);
