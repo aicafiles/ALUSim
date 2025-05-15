@@ -271,17 +271,18 @@ public class Ui {
             label.setBorder(BorderFactory.createEmptyBorder(
                     12, 22, 12, 22
             ));
+            label.setOpaque(true);
             if (isSelected) {
                 label.setBackground(ACCENT_TEAL);
                 label.setForeground(Color.WHITE);
             } else {
-                label.setBackground(PANEL_BACKGROUND);
+                label.setBackground(Color.WHITE);
                 label.setForeground(TEXT_DARK);
             }
             label.setFocusable(false);
-            label.setOpaque(true);
             label.setCursor(new Cursor(Cursor.HAND_CURSOR));
             label.setFont(POPPINS_FONT);
+            label.setText(value != null ? value.toString() : "");
             return label;
         }
     }

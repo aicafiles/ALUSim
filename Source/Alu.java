@@ -77,10 +77,25 @@ public class Alu extends JFrame {
     }
 
     private void updateHistoryDisplay(String[] history) {
-        historyModel.clear();
+        int modelSize = historyModel.getSize();
+        int historyCount = 0;
+        for (String entry : history) {
+            if (entry != null) historyCount++;
+        }
+        while (historyModel.getSize() > historyCount) {
+            historyModel.remove(historyModel.getSize() - 1);
+        }
+        int i = 0;
         for (String entry : history) {
             if (entry != null) {
-                historyModel.addElement(entry);
+                if (i < historyModel.getSize()) {
+                    if (!historyModel.get(i).equals(entry)) {
+                        historyModel.set(i, entry);
+                    }
+                } else {
+                    historyModel.addElement(entry);
+                }
+                i++;
             }
         }
         if (historyModel.getSize() > 0) {
