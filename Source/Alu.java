@@ -55,7 +55,6 @@ public class Alu extends JFrame {
         addInputValidationFeedback(input2Field, true);
         
         setupModelListeners();
-        setupKeyboardShortcuts();
     }
 
     private void setupModelListeners() {
@@ -77,7 +76,6 @@ public class Alu extends JFrame {
     }
 
     private void updateHistoryDisplay(String[] history) {
-        int modelSize = historyModel.getSize();
         int historyCount = 0;
         for (String entry : history) {
             if (entry != null) historyCount++;
@@ -108,7 +106,6 @@ public class Alu extends JFrame {
             new OperationItem("ADD", "ADD"),
             new OperationItem("SUBTRACT", "SUBTRACT"),
             new OperationItem("MULTIPLY", "MULTIPLY"),
-            new OperationItem("DIVIDE", "DIVIDE"),
             new OperationItem("AND", "AND"),
             new OperationItem("OR", "OR"),
             new OperationItem("NOT", "NOT")
@@ -178,9 +175,7 @@ public class Alu extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
 
         input1Field = Ui.createModernTextField();
-        input1Field.setToolTipText("Enter first number");
         input2Field = Ui.createModernTextField();
-        input2Field.setToolTipText("Enter second number");
         Ui.setInputFieldFocusBehavior(input1Field, input2Field);
         getRootPane().addMouseListener(new MouseAdapter() {
             @Override
@@ -194,7 +189,6 @@ public class Alu extends JFrame {
             }
         });
         resultField = Ui.createModernTextField();
-        resultField.setToolTipText("Decimal result of the operation");
         resultField.setEditable(false);
         resultField.setBackground(Ui.FIELD_BACKGROUND);
         resultField.setFont(Ui.POPPINS_BOLD);
@@ -203,7 +197,6 @@ public class Alu extends JFrame {
         binaryInput1TextField.setFont(new Font("Poppins", Font.PLAIN, 18));
         binaryInput1TextField.setText(DEFAULT_BINARY_STRING);
         binaryInput1TextField.setHorizontalAlignment(JTextField.LEFT);
-        binaryInput1TextField.setToolTipText("Secondary representation of Input A");
         binaryInput1TextField.setEditable(false);
         binaryInput1TextField.setBackground(Ui.FIELD_BACKGROUND);
 
@@ -211,19 +204,16 @@ public class Alu extends JFrame {
         binaryInput2TextField.setFont(new Font("Poppins", Font.PLAIN, 18));
         binaryInput2TextField.setText(DEFAULT_BINARY_STRING);
         binaryInput2TextField.setHorizontalAlignment(JTextField.LEFT);
-        binaryInput2TextField.setToolTipText("Secondary representation of Input B");
         binaryInput2TextField.setEditable(false);
         binaryInput2TextField.setBackground(Ui.FIELD_BACKGROUND);
 
         binaryResultTextField = Ui.createModernTextField();
         binaryResultTextField.setFont(Ui.POPPINS_FONT);
         binaryResultTextField.setHorizontalAlignment(JTextField.LEFT);
-        binaryResultTextField.setToolTipText("Binary representation of the result");
         binaryResultTextField.setBackground(Ui.FIELD_BACKGROUND);
         binaryResultTextField.setEditable(false);
 
         baseSelector = Ui.createModernComboBox(new String[]{"DECIMAL", "BINARY"});
-        baseSelector.setToolTipText("Select input number system");
         baseSelector.addActionListener(e -> {
             updateSecondaryLabels();
             addInputValidationFeedback(input1Field);
@@ -241,7 +231,6 @@ public class Alu extends JFrame {
         });
 
         operationCombo = Ui.createModernComboBox(getStyledOperationItems());
-        operationCombo.setToolTipText("Select operation to perform");
 
         int currentY = 0;
         secondaryLabelA = new JLabel();
@@ -276,11 +265,7 @@ public class Alu extends JFrame {
         mainContentPanel.add(binaryInput2TextField, gbc);
         addLabeledComponentToPanel(mainContentPanel, gbc, "Select Operation", operationCombo, 2, 2);
 
-        int fieldHeight = input1Field.getPreferredSize().height;
-        int buttonHeight = fieldHeight;
-
         calculateButton = Ui.createModernButton("Calculate");
-        calculateButton.setToolTipText("Perform calculation (Alt+Enter or specific operation shortcut)");
         calculateButton.addActionListener(e -> {
             performOperation();
             getRootPane().requestFocusInWindow();
@@ -290,7 +275,6 @@ public class Alu extends JFrame {
         JButton clearButton = Ui.createModernButton("Clear");
         clearButton.setBackground(Ui.ACCENT_CORAL);
         clearButton.setForeground(Color.WHITE);
-        clearButton.setToolTipText("Clear all fields");
         clearButton.setFont(Ui.POPPINS_BOLD);
         clearButton.setPreferredSize(new Dimension(110, 48));
         clearButton.addActionListener(e -> {
@@ -470,15 +454,11 @@ public class Alu extends JFrame {
             case "BINARY":
                 secondaryLabelA.setText("Decimal A:");
                 secondaryLabelB.setText("Decimal B:");
-                binaryInput1TextField.setToolTipText("Decimal representation of Input A");
-                binaryInput2TextField.setToolTipText("Decimal representation of Input B");
                 break;
             case "DECIMAL":
             default:
                 secondaryLabelA.setText("Binary A:");
                 secondaryLabelB.setText("Binary B:");
-                binaryInput1TextField.setToolTipText("Binary representation of Input A");
-                binaryInput2TextField.setToolTipText("Binary representation of Input B");
                 break;
         }
     }
@@ -597,7 +577,6 @@ public class Alu extends JFrame {
         JButton deleteAllButton = Ui.createModernButton("");
         deleteAllButton.setBackground(Ui.ACCENT_CORAL);
         deleteAllButton.setPreferredSize(new Dimension(38, 38));
-        deleteAllButton.setToolTipText("Clear all history");
         deleteAllButton.setFocusable(false);
         deleteAllButton.setContentAreaFilled(false);
         deleteAllButton.setBorderPainted(false);
@@ -605,10 +584,9 @@ public class Alu extends JFrame {
         deleteAllButton.setFont(Ui.POPPINS_BOLD.deriveFont(Font.BOLD, 20f));
         deleteAllButton.setText("🗑");
         deleteAllButton.addActionListener(e -> {
-            int confirm = JOptionPane.showConfirmDialog(historyPanel, "Clear all calculation history?", "Confirm", JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION) {
+            showConfirmDialog(historyPanel, "Clear all calculation history?", "Confirm", () -> {
                 aluLogic.clearHistory();
-            }
+            });
         });
         bottomPanel.add(deleteAllButton);
         historyPanel.add(bottomPanel, BorderLayout.SOUTH);
@@ -625,41 +603,6 @@ public class Alu extends JFrame {
         operationCombo.getAccessibleContext().setAccessibleName("Select Operation");
         calculateButton.getAccessibleContext().setAccessibleName("Calculate Button");
         historyList.getAccessibleContext().setAccessibleName("Calculation History List");
-    }
-
-    private void setupKeyboardShortcuts() {
-        InputMap inputMap = getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-        ActionMap actionMap = getRootPane().getActionMap();
-
-        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.ALT_DOWN_MASK), "CALCULATE_ACTION");
-        actionMap.put("CALCULATE_ACTION", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                performOperation();
-            }
-        });
-
-        setupShortcut(inputMap, actionMap, "ADD", KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.ALT_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
-        setupShortcut(inputMap, actionMap, "SUBTRACT", KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.ALT_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
-        setupShortcut(inputMap, actionMap, "MULTIPLY", KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.ALT_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
-        setupShortcut(inputMap, actionMap, "DIVIDE", KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.ALT_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
-    }
-
-    private void setupShortcut(InputMap inputMap, ActionMap actionMap, String operationKey, KeyStroke keystroke) {
-        String actionName = "PERFORM_" + operationKey;
-        inputMap.put(keystroke, actionName);
-        actionMap.put(actionName, new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                for (int i = 0; i < operationCombo.getItemCount(); i++) {
-                    if (operationCombo.getItemAt(i).getKey().equals(operationKey)) {
-                        operationCombo.setSelectedIndex(i);
-                        performOperation();
-                        break;
-                    }
-                }
-            }
-        });
     }
 
     private void addInputValidationFeedback(JTextField field) {
@@ -689,15 +632,12 @@ public class Alu extends JFrame {
                 if (currentText.isEmpty()) {
                     Border defaultBorder = new Ui.RoundedBorder(Ui.TEXT_FIELD_BORDER_RADIUS, Ui.BORDER_COLOR);
                     field.setBorder(BorderFactory.createCompoundBorder(defaultBorder, paddingPart));
-                    field.setToolTipText("Enter a number in " + currentBase + " base");
                 } else if (!aluLogic.isValidInput(currentText, currentBase)) {
                     Border errorBorder = new Ui.RoundedBorder(Ui.TEXT_FIELD_BORDER_RADIUS, Color.RED.darker());
                     field.setBorder(BorderFactory.createCompoundBorder(errorBorder, paddingPart));
-                    field.setToolTipText("Invalid " + currentBase + " number. Example: " + getExampleForBase(currentBase));
                 } else {
                     Border validBorder = new Ui.RoundedBorder(Ui.TEXT_FIELD_BORDER_RADIUS, Ui.ACCENT_TEAL);
                     field.setBorder(BorderFactory.createCompoundBorder(validBorder, paddingPart));
-                    field.setToolTipText("Valid " + currentBase + " input");
                     JTextField targetTextField = null;
                     if (field == input1Field) {
                         targetTextField = binaryInput1TextField;
@@ -732,10 +672,8 @@ public class Alu extends JFrame {
                 Ui.TEXT_FIELD_VERTICAL_PADDING, Ui.TEXT_FIELD_HORIZONTAL_PADDING,
                 Ui.TEXT_FIELD_VERTICAL_PADDING, Ui.TEXT_FIELD_HORIZONTAL_PADDING);
         }
-        String currentBase = baseSelector != null ? (String) baseSelector.getSelectedItem() : "DECIMAL";
         Border defaultBorder = new Ui.RoundedBorder(Ui.TEXT_FIELD_BORDER_RADIUS, Ui.BORDER_COLOR);
         field.setBorder(BorderFactory.createCompoundBorder(defaultBorder, paddingPart));
-        field.setToolTipText("Enter a number in " + currentBase + " base");
         if (!initialSetup && !field.getText().isEmpty()) {
             JTextField targetTextField = null;
             if (field == input1Field) {
@@ -781,20 +719,11 @@ public class Alu extends JFrame {
         }
     }
 
-    private String getExampleForBase(String base) {
-        switch (base.toUpperCase()) {
-            case "BINARY": return "0101";
-            case "DECIMAL":
-            default: return "123";
-        }
-    }
-
     private void setupOperations() {
         binaryOperations = new HashMap<>();
         binaryOperations.put("ADD", aluLogic::add);
         binaryOperations.put("SUBTRACT", aluLogic::subtract);
         binaryOperations.put("MULTIPLY", aluLogic::multiply);
-        binaryOperations.put("DIVIDE", aluLogic::divide);
         binaryOperations.put("AND", aluLogic::and);
         binaryOperations.put("OR", aluLogic::or);
 
@@ -897,5 +826,48 @@ public class Alu extends JFrame {
         });
         animationTimer.setRepeats(true);
         animationTimer.start();
+    }
+
+    private void showConfirmDialog(Component parent, String message, String title, Runnable onConfirm) {
+        final JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(parent), title, Dialog.ModalityType.APPLICATION_MODAL);
+        dialog.setUndecorated(true);
+        JPanel panel = Ui.createRoundedPanel();
+        panel.setBackground(Ui.PANEL_BACKGROUND);
+        panel.setLayout(new BorderLayout(0, 0));
+        panel.setBorder(BorderFactory.createCompoundBorder(
+            new Ui.RoundedBorder(Ui.GENERAL_BORDER_RADIUS, Ui.ACCENT_CORAL),
+            BorderFactory.createEmptyBorder(36, 48, 36, 48)
+        ));
+
+        JLabel iconLabel = new JLabel(UIManager.getIcon("OptionPane.warningIcon"));
+        iconLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 18));
+        JLabel messageLabel = new JLabel("<html>" + message.replace("\n", "<br>") + "</html>");
+        messageLabel.setFont(Ui.POPPINS_FONT.deriveFont(Font.BOLD, 16f));
+        messageLabel.setForeground(Ui.ACCENT_CORAL);
+
+        JPanel msgPanel = new JPanel(new BorderLayout());
+        msgPanel.setOpaque(false);
+        msgPanel.add(iconLabel, BorderLayout.WEST);
+        msgPanel.add(messageLabel, BorderLayout.CENTER);
+        panel.add(msgPanel, BorderLayout.CENTER);
+
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 24, 0));
+        btnPanel.setOpaque(false);
+        JButton yesButton = Ui.createModernButton("Yes");
+        yesButton.addActionListener(ev -> {
+            dialog.dispose();
+            if (onConfirm != null) onConfirm.run();
+        });
+        JButton noButton = Ui.createModernButton("No");
+        noButton.setBackground(Ui.ACCENT_CORAL);
+        noButton.addActionListener(ev -> dialog.dispose());
+        btnPanel.add(yesButton);
+        btnPanel.add(noButton);
+        panel.add(btnPanel, BorderLayout.SOUTH);
+
+        dialog.getContentPane().add(panel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(parent);
+        dialog.setVisible(true);
     }
 }

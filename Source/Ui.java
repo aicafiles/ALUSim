@@ -206,7 +206,7 @@ public class Ui {
         JLabel iconLabel = new JLabel(UIManager.getIcon("OptionPane.errorIcon"));
         iconLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 18));
         JLabel messageLabel = new JLabel("<html>" + message.replace("\n", "<br>") + "</html>");
-        messageLabel.setFont(POPPINS_BOLD.deriveFont(Font.BOLD, 20f));
+        messageLabel.setFont(POPPINS_FONT.deriveFont(Font.BOLD, 16f)); 
         messageLabel.setForeground(ACCENT_CORAL);
 
         JPanel msgPanel = new JPanel(new BorderLayout());

@@ -56,24 +56,11 @@ public class Logic {
     }
 
     public int divide(int a, int b) {
-        if (b == 0) {
-            throw new ArithmeticException("Division by zero");
-        }
-        if (a == Integer.MIN_VALUE && b == -1) {
-            throw new ArithmeticException("Division overflow");
-        }
-        int result = a / b;
-        updateResult(result);
-        return result;
+        throw new UnsupportedOperationException("Division operation removed");
     }
 
     public int modulo(int a, int b) {
-        if (b == 0) {
-            throw new ArithmeticException("Modulo by zero");
-        }
-        int result = a % b;
-        updateResult(result);
-        return result;
+        throw new UnsupportedOperationException("Modulo operation removed");
     }
 
     public int and(int a, int b) {
@@ -95,21 +82,11 @@ public class Logic {
     }
 
     public int leftShift(int a, int b) {
-        if (b < 0 || b >= 32) {
-            throw new IllegalArgumentException("Shift amount must be between 0 and 31");
-        }
-        int result = a << b;
-        updateResult(result);
-        return result;
+        throw new UnsupportedOperationException("Left shift operation removed");
     }
 
     public int rightShift(int a, int b) {
-        if (b < 0 || b >= 32) {
-            throw new IllegalArgumentException("Shift amount must be between 0 and 31");
-        }
-        int result = a >> b;
-        updateResult(result);
-        return result;
+        throw new UnsupportedOperationException("Right shift operation removed");
     }
 
     public String getBinaryResult() {
