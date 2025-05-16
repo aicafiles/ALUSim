@@ -74,7 +74,6 @@ public class Ui {
                 g2.setPaint(gp);
                 g2.fillRoundRect(0, 0, width, height, GENERAL_BORDER_RADIUS, GENERAL_BORDER_RADIUS);
                 g2.dispose();
-                super.paintComponent(g);
             }
         };
         panel.setOpaque(false);
@@ -88,8 +87,9 @@ public class Ui {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(getBackground());
-                g2.fillRect(0, 0, getWidth(), getHeight());
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), TEXT_FIELD_BORDER_RADIUS, TEXT_FIELD_BORDER_RADIUS);
                 g2.dispose();
                 super.paintComponent(g);
             }
@@ -101,7 +101,7 @@ public class Ui {
         );
         field.setBorder(BorderFactory.createCompoundBorder(roundedPart, paddingPart));
         field.setFont(POPPINS_FONT);
-        field.setOpaque(true);
+        field.setOpaque(false);
         field.setBackground(FIELD_BACKGROUND);
         field.setForeground(TEXT_DARK);
         field.setCaretColor(ACCENT_PURPLE);
