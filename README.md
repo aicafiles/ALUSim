@@ -37,4 +37,4 @@ ALUSim is a desktop application that visually simulates an Arithmetic Logic Unit
 - Carandang, Angelica D.
 - Lontok, Mara Joy
 - Marasigan, Xyzon Ezekiel R.
-- Martinez, Sean Iliad
+- Martinez, Sean Iliad L.
