@@ -31,3 +31,10 @@ ALUSim is a desktop application that visually simulates an Arithmetic Logic Unit
 - `Source/Logic.java` — Core ALU operations and history management
 - `Source/Ui.java` — UI component styling and helpers
 - `Source/Main.java` — Application entry point
+
+## Members
+- Alcayde, Louis Yvan C.
+- Carandang, Angelica D.
+- Lontok, Mara Joy
+- Marasigan, Xyzon Ezekiel R.
+- Martinez, Sean Iliad
